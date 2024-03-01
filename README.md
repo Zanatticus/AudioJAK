@@ -7,9 +7,9 @@ We plan to create an audio visualizer that will be interfaced on a HDMI display.
 ![alt text](https://github.com/neu-ece-4534-sp24/prj-audiojak/blob/main/project_diagram.jpeg)
 
 # Team Members/Responsibilities: 
-Alexander Ingare: Setting up remote HDMI, Buttons interface
-Jared Cohen: HDMI Hardware interface/output
-Karthik Yalala: Interface design and displaying
-All of us: Audio playing/editing
+Alexander Ingare: Setting up remote HDMI, Buttons interface <br />
+Jared Cohen: HDMI Hardware interface/output <br />
+Karthik Yalala: Interface design and displaying <br />
+All of us: Audio playing/editing <br />
 
 
