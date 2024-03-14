@@ -234,7 +234,7 @@ void fifo_transmit_word(uint32_t word)
    @param sample_count how many samples to play or -1 plays to end of file
    @param start starting point in file for playing
    @return 0 if successful, < 0 otherwise */
-int play_wave_samples(FILE* fp, struct wave_header hdr, int sample_count, unsigned int start)
+int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsigned int end)
 {
     if (!fp) return -EINVAL;
 
@@ -247,7 +247,7 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, int sample_count, unsign
     if (!buffer) return -ENOMEM;
 
     int samplesPlayed = 0;
-    while (samplesPlayed < sample_count || sample_count == -1)
+    while (samplesPlayed < end - start || end == -1)
     {
         if (fread(buffer, 1, frameSize, fp) < frameSize)
         {
@@ -341,9 +341,10 @@ int main(int argc, char** argv) {
     }
 
     // Play the WAV file samples
-    int samplesToPlay = hdr.SampleRate * hdr.NumChannels;
-    samplesToPlay = -1; // Play the entire file
-    if (play_wave_samples(fp, hdr, samplesToPlay, 0) < 0) {
+    unsigned int start = 1000;
+    // end = -1 to play entire file 
+    unsigned int end = -1;
+    if (play_wave_samples(fp, hdr, start, end) < 0) {
         printf(stderr, "Failed to play WAV samples\n");
     }
     printf("Finished playing WAV file\n"); 
