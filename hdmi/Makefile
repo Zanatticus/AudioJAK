@@ -5,9 +5,9 @@ TARGET = test
 FLAGS = -g -c -Wall
 LIBS = 
 LFLAGS = 
-LZED:=-lzed
-LALSA:= -lasound -lpthread -lrt -ldl -lm
-INCLUDES = -I /usr/include/alsa/
+LZED:=#-lzed
+LALSA:= -lasound -lpthread -lrt -ldl -lm -ldrm
+INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm
 OBJS = $(SRCS:.c=.o)
 
 include include/zed.mk
@@ -26,3 +26,6 @@ $(TARGET): $(OBJS)
 # Clean rule
 clean:
 	rm -f $(OBJS) $(TARGET)
+
+install:
+	sudo apt-get install libdrm-dev
