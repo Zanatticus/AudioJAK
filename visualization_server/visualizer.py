@@ -8,3 +8,6 @@ while True:
         f.write("The current timestamp is: " + str(datetime.now()) + "\n")
         f.close()
     time.sleep(10)
+    
+    
+### THIS FILE SHOULD BE USED FOR MAKING THE AUDIO VISUALIZATION GRAPHS ###
