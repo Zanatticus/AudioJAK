@@ -1,7 +1,8 @@
 [Unit]
 Description=service for audio visualizer
-After=multi-user.target[Service]
+After=multi-user.target
 
+[Service]
 Type=simple
 Restart=always
 ExecStart=/usr/bin/python3 /home/zanatticus/prj-audiojak/visualization_server/visualizer.py
