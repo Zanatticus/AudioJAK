@@ -340,10 +340,15 @@ int main(int argc, char** argv) {
         return -1; // Exit if configuring the CODEC fails
     }
 
+    // Get user input for the start and end samples to play 
+    unsigned int start;
+    unsigned int end;
+    printf("Enter the number of samples to start playing from: ");
+    scanf("%d", &start);
+    printf("Enter the number of samples to play (-1 for entire file): ");
+    scanf("%d", &end);
+    
     // Play the WAV file samples
-    unsigned int start = 1000;
-    // end = -1 to play entire file 
-    unsigned int end = -1;
     if (play_wave_samples(fp, hdr, start, end) < 0) {
         printf(stderr, "Failed to play WAV samples\n");
     }
