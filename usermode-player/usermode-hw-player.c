@@ -22,7 +22,10 @@ static unsigned char pause_playback = 0;
 static void signal_handler(int num)
 {
   pause_playback = !pause_playback;
-  printf("Toggled pause\n");
+  if (pause_playback)
+    printf("Paused playback\n");
+  else
+    printf("Resumed playback\n");
 }
 
 // NOTE use sizes from STDINT
@@ -367,6 +370,9 @@ int main(int argc, char** argv) {
     scanf("%d", &start);
     printf("Enter the number of samples to play (-1 for entire file): ");
     scanf("%d", &end);
+
+    // Print instructions for pausing/resuming playback
+    printf("Press Ctrl+C to pause/resume playback\n");
     
     // Play the WAV file samples
     if (play_wave_samples(fp, hdr, start, end) < 0) {
