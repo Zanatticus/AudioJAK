@@ -1,5 +1,7 @@
 # Audio Visualizer Ubuntu Server
 
+To debug, use `journalctl -xe`
+
 Make sure systemd is available on the system.
 `systemd --version`
 
@@ -29,3 +31,13 @@ To restart the service
 To check the status of the service
 `sudo systemctl status visualizer`
 
+## Socket Exposure
+
+To expose a socket that the Ubuntu service/server and the Mongoose embedded web client can communicate through, a respective visualizer.socket file must be made (copy the contents of /prj-audiojak/visualization_server/visualizer.socket). Socket must start before service!
+`sudo nano /etc/systemd/system/visualizer.socket`
+
+Reload the daemon
+`sudo systemctl daemon-reload`
+
+Start visualizer.socket
+`sudo systemctl start visualizer.socket`
