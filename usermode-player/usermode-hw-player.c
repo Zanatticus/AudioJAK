@@ -9,10 +9,21 @@
 #include <alsa/asoundlib.h>
 #include <alsa/pcm.h>
 #include <unistd.h>
+#include <sys/signal.h>
 
 
 #define SND_CARD "default"
 FILE* fifo;
+
+// stop infinite loop flag
+static unsigned char pause_playback = 0;
+
+// Signal handler function for SIGINT
+static void signal_handler(int num)
+{
+  pause_playback = !pause_playback;
+  printf("Toggled pause\n");
+}
 
 // NOTE use sizes from STDINT
 // NOTE verify data alignment!
@@ -249,6 +260,12 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
     int samplesPlayed = 0;
     while (samplesPlayed < end - start || end == -1)
     {
+        // Check if playback is paused
+        if (pause_playback) {
+            usleep(100000);
+            continue;
+        }
+
         if (fread(buffer, 1, frameSize, fp) < frameSize)
         {
             // End of file or read error
@@ -285,6 +302,9 @@ int main(int argc, char** argv) {
         pr_usage(argv[0]);
         return 1;
     }
+
+    // handle SIGINT (ctrl-c)
+    signal(SIGINT, signal_handler);
 
     // Initialize ALSA variables
     snd_pcm_t *pcm_handle = NULL;
