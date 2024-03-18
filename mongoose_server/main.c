@@ -1,3 +1,6 @@
+// Copyright (c) 2020 Cesanta Software Limited
+// All rights reserved
+
 #include <signal.h>
 #include "mongoose.h"
 
