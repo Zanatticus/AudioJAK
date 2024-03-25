@@ -1,0 +1,9 @@
+[Socket]
+ListenStream = 80
+BindIPv6Only = both
+Accept=no
+FileDescriptorName = http
+Service=visualizer.service
+
+[Install]
+WantedBy = sockets.target
