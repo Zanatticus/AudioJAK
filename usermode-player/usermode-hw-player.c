@@ -248,7 +248,7 @@ void fifo_transmit_word(uint32_t word)
    @param sample_count how many samples to play or -1 plays to end of file
    @param start starting point in file for playing
    @return 0 if successful, < 0 otherwise */
-int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsigned int end)
+int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsigned int end, unsigned int loop)
 {
     if (!fp) return -EINVAL;
 
@@ -261,6 +261,7 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
     if (!buffer) return -ENOMEM;
 
     int samplesPlayed = 0;
+    int loopCount = 0;
     while (samplesPlayed < end - start || end == -1)
     {
         // Check if playback is paused
@@ -271,8 +272,18 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
 
         if (fread(buffer, 1, frameSize, fp) < frameSize)
         {
-            // End of file or read error
-            break;
+            if (loopCount < loop || loop == -1)
+            {
+                fseek(fp, 44, SEEK_SET); // Go back to start of data
+                loopCount++;
+                continue;
+            }
+            else
+            {
+                // End of file or read error
+                printf("End of file or read error\n");
+                break;
+            }
         }
 
         // For mono files, duplicate the sample for left and right channels
@@ -371,11 +382,16 @@ int main(int argc, char** argv) {
     printf("Enter the number of samples to play (-1 for entire file): ");
     scanf("%d", &end);
 
+    // Get user input for loop count
+    unsigned int loop;
+    printf("Enter the number of times to loop (-1 for infinite): ");
+    scanf("%d", &loop);
+
     // Print instructions for pausing/resuming playback
     printf("Press Ctrl+C to pause/resume playback\n");
     
     // Play the WAV file samples
-    if (play_wave_samples(fp, hdr, start, end) < 0) {
+    if (play_wave_samples(fp, hdr, start, end, loop) < 0) {
         printf(stderr, "Failed to play WAV samples\n");
     }
     printf("Finished playing WAV file\n"); 
