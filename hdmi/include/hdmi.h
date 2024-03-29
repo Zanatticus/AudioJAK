@@ -27,6 +27,15 @@ void drawRectangle(int x1, int y1, int x2, int y2, uint32_t color);
 /* draws rectangle in bulk mode */
 void drawRectangleBulk(int x1, int y1, int x2, int y2, uint32_t color);
 
+/* Draws a character */
+void drawCharacter(char ch, int x, int y, int fontSize, uint32_t color);
+
+/* Draws a character in bulk mode*/
+void drawCharacterBulk(char ch, int x, int y, int fontSize, uint32_t color);
+
+/* Draws a string to the screen */
+void drawString(char *string, int x, int y, int fontSize, uint32_t color);
+
 /* Sends the current buffer to the screen. Note, no drawings will appear until this function is called */
 void paint();
 

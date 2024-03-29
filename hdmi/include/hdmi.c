@@ -11,6 +11,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <string.h>
+
+#include "font.h"
+
+extern char font8x8_basic[128][8];
 
 int hdmifd;
 struct fb_var_screeninfo screeninfo;
@@ -137,6 +142,64 @@ void drawRectangleBulk(int x1, int y1, int x2, int y2, uint32_t color)
             setPixelBulk(i, j, color);
         }
     }
+}
+
+/* Draws a character */
+void drawCharacter(char ch, int x, int y, int fontSize, uint32_t color)
+{
+    // ASCII characters start from 32
+    if (ch < 0x20 || ch > 0x7E) return;
+
+    for (int i = 0; i < 8; ++i) {
+        char pixel = font8x8_basic[(int)(ch)][i];
+        for (int j = 0; j < 8; ++j) {
+            if (pixel & (1 << (j))) {
+                for(int mx = 0; mx < fontSize; mx++)
+                    for(int my = 0; my < fontSize; my++)
+                    {
+                        setPixel(x + (j * fontSize) + mx, y + (i * fontSize) + my, color);
+                    }
+            } else {
+                // Set pixel to black
+                //fb_ptr[(y + i) * fb_width + (x + j)] = 0;
+            }
+        }
+    }
+}
+
+/* Draws a character in bulk write mode*/
+void drawCharacterBulk(char ch, int x, int y, int fontSize, uint32_t color)
+{
+    // ASCII characters start from 32
+    if (ch < 0x20 || ch > 0x7E) return;
+
+    for (int i = 0; i < 8; ++i) {
+        char pixel = font8x8_basic[(int)(ch)][i];
+        for (int j = 0; j < 8; ++j) {
+            if (pixel & (1 << (j))) {
+                for(int mx = 0; mx < fontSize; mx++)
+                    for(int my = 0; my < fontSize; my++)
+                    {
+                        setPixelBulk(x + (j * fontSize) + mx, y + (i * fontSize) + my, color);
+                    }
+            } else {
+                // Set pixel to black
+                //fb_ptr[(y + i) * fb_width + (x + j)] = 0;
+            }
+        }
+    }
+}
+
+/* Draws a string to the screen */
+void drawString(char *word, int x, int y, int fontSize, uint32_t color)
+{
+    int len = strlen(word);
+    startPixelBulkDraw();
+    for(int i = 0; i < len; i++)
+    {
+        drawCharacterBulk(word[i], x + (i * 8 * fontSize), y, fontSize, color);
+    }
+    endPixelBulkDraw();
 }
 
 /* Gets the height of the screen */
