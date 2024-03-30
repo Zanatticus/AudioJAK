@@ -238,18 +238,31 @@ int main()
 
     printf("Screen W: %d\nScreen H: %d\n", getScreenWidth(), getScreenHeight());
 
-    drawWaveform(160, 0, 1120, 720, waveform, len, 0xFF00FF);
+    initWaveform("testsounds.wav", waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
+
+    updateCursor(-1, -1, -1);
+    drawWholeScreen();
+
+    //drawWaveform(160, 0, 1120, 720, waveform, len, 0xFF00FF);
     //plotAudioWaveform(waveform, len, 0, 1280, 240, 480);
-    int fontSize = 9;
-    drawRectangle(0, 0, 100, 100, 0xFF0000);
-    drawRectangle(100, 100, 100 + 8*fontSize, 100 + 8*fontSize, 0x00FF00);
-    drawCharacter('C', 100, 100, fontSize, 0xFFFFFF);
-    drawString("ABCD EFG", 0, 0, 10, 0xFFFFFF);
+    //int fontSize = 9;
+    //drawRectangle(0, 0, 100, 100, 0xFF0000);
+    //drawRectangle(100, 100, 100 + 8*fontSize, 100 + 8*fontSize, 0x00FF00);
+    //drawCharacter('C', 100, 100, fontSize, 0xFFFFFF);
+    //drawString("ABCD EFG", 0, 0, 10, 0xFFFFFF);
     //drawCharacter('C', 0, 0, 1, 0xFFFFFF);
-    
+    int i = 0;
     while(!stop)
     {
-        
+      updateCursor(i-10000, i + 10000, i);
+      
+      //usleep(10);
+      i++;
+      if(i == len)
+      {
+        printf("Looping...\n");
+        i = 0;
+      }
     }
 
     stopAudioVisualization();
