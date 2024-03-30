@@ -36,9 +36,6 @@ void drawWholeScreen();
 /* Updates all of the cursors positions, setting cursor to -1 will not draw it */
 void updateCursor(int lcursor, int rcursor, int cursor);
 
-/* Draws all the cursors regardless if they changed, setting cursor to -1 will not draw it */
-void drawAllCursors(int lcursor, int rcursor, int cursor);
-
 /* Close the audio visualization */
 void stopAudioVisualization();
 
@@ -50,6 +47,9 @@ void drawPartialWaveform(int snum_start, int snum_end, int sx, int sy, int ex, i
 
 /* Draw part of a waveform to screen in bulk draw mode*/
 void drawPartialWaveformBulk(int snum_start, int snum_end, int sx, int sy, int ex, int ey, uint32_t *samples, int len, uint32_t color);
+
+/* Draw waveform border to screen */
+void drawWaveformBorderBulk();
 
 int getScreenWidth();
 
