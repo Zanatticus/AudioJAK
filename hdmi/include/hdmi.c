@@ -71,7 +71,7 @@ void inithdmi()
 void closehdmi()
 {
     stophdmi = 1;
-    usleep(10000); //Give enough time to stop
+    usleep(100000); //Give enough time to stop
     //Destroy the mutex
     pthread_mutex_destroy(&mutex);
 

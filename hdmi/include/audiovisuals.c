@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <string.h>
 
 audioInfo *waveform;
 
@@ -40,7 +41,24 @@ void initWaveform(char* filename, uint32_t *samples, int len, long sampleRate, u
     waveform->wfex = 4*w/5;
     waveform->wfsy = (h/5);
     waveform->wfey = 4*(h/5);
-    printf("SX: %d, EX: %d\n", waveform->wfsx, waveform->wfex);
+}
+
+/* Helper function to concatenate strings */
+char* concat(const char *s1, const char *s2) {
+    size_t len1 = strlen(s1);
+    size_t len2 = strlen(s2);
+    
+    char *result = malloc(len1 + len2 + 1); // +1 for the null-terminator
+    
+    if (result == NULL) {
+        perror("Memory allocation error");
+        exit(EXIT_FAILURE);
+    }
+    
+    strcpy(result, s1);
+    strcat(result, s2);
+    
+    return result;
 }
 
 /* Draws the entire audio visualization screen, expensive and slow. Only use for major updates*/
@@ -59,7 +77,24 @@ void drawWholeScreen()
     /* Draw cursors */
     updateCursor(waveform->lcursor, waveform->rcursor, waveform->cursor);
 
-    /* Draw filename information */
+
+    /* Draw filename */
+    char *fn = concat("Filename: ", waveform->filename);
+    int fnlen = strlen(fn);
+    int fontSize = (3*w/7)/(fnlen * 8);
+    drawString(fn, w/20, h/20, fontSize, waveform->text_color);
+
+    /* Draw Sample Rate */
+    char sr[100];
+    sprintf(sr, "%ld", waveform->sampleRate);
+    fn = concat("Sample Rate: ", sr);
+    drawString(fn, w/20, h/20 + fontSize*8, fontSize, waveform->text_color);
+
+    /* Draw Duration */
+    sprintf(sr, "%.2f", waveform->duration);
+    fn = concat("Duration: ", sr);
+    fn = concat(fn, "s");
+    drawString(fn, w/20, h/20 + 2* fontSize*8, fontSize, waveform->text_color);
 
     /* Draw progress bar */
 }

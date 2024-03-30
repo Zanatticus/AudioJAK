@@ -260,8 +260,8 @@ int main()
       updateCursor(loop_start, loop_end, i);
       
       //usleep(100);
-      i++;
-      if(i == loop_end)
+      i+=10;
+      if(i >= loop_end)
       {
         //printf("Looping...\n");
         i = loop_start;
