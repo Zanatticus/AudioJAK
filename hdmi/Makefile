@@ -6,8 +6,8 @@ FLAGS = -g -c -Wall
 LIBS = 
 LFLAGS = 
 LZED:=#-lzed
-LALSA:= -lasound -lpthread -lrt -ldl -lm -ldrm
-INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm
+LALSA:= -lasound -lpthread -lrt -ldl -lm
+INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm -I include
 OBJS = $(SRCS:.c=.o)
 
 include include/zed.mk
@@ -28,4 +28,5 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 install:
+	sudo apt-get -y install libasound2-dev
 	sudo apt-get install libdrm-dev
