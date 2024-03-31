@@ -14,11 +14,12 @@
 
 #define SND_CARD "default"
 FILE* fifo;
+snd_pcm_t *pcm_handle = NULL;
 
 // stop infinite loop flag
 static unsigned char pause_playback = 0;
 
-// Signal handler function for SIGINT
+// Signal handler function for SIGINT (Ctrl+C)
 static void signal_handler(int num)
 {
   pause_playback = !pause_playback;
@@ -26,6 +27,19 @@ static void signal_handler(int num)
     printf("Paused playback\n");
   else
     printf("Resumed playback\n");
+}
+
+// Signal handler function for SIGTSTP (Ctrl+Z)
+static void sigtstp_handler(int num)
+{
+    // Cleanup before terminating the code
+    printf("Cleaning up before termination...\n");
+    //fclose(fp);
+    fclose(fifo);
+    snd_pcm_drain(pcm_handle); 
+    snd_pcm_close(pcm_handle); 
+    i2s_disable_tx();
+    exit(0);
 }
 
 // NOTE use sizes from STDINT
@@ -319,9 +333,11 @@ int main(int argc, char** argv) {
 
     // handle SIGINT (ctrl-c)
     signal(SIGINT, signal_handler);
+    // handle SIGTSTP (ctrl-z)
+    signal(SIGTSTP, sigtstp_handler);
 
     // Initialize ALSA variables
-    snd_pcm_t *pcm_handle = NULL;
+    //snd_pcm_t *pcm_handle = NULL;
     snd_pcm_hw_params_t *params = NULL;
     i2s_enable_tx();
     printf("Open WAV file\n");
