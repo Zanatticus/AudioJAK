@@ -276,6 +276,8 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
 
     int samplesPlayed = 0;
     int loopCount = 0;
+    int total_seconds_played = 0;
+
     while (samplesPlayed < end - start || end == -1)
     {
         // Check if playback is paused
@@ -317,9 +319,12 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
         }
 
         samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
+        if (samplesPlayed % hdr.SampleRate == 0) {
+            total_seconds_played += 1;
+            printf("Total seconds played: %d\n", total_seconds_played);
+        }
         //printf("samples played: %d\n", samplesPlayed);
     }
-
     
     free(buffer);
     return 0;
