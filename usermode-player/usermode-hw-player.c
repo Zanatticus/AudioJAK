@@ -274,7 +274,6 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
     uint8_t* buffer = (uint8_t*)malloc(frameSize);
     if (!buffer) return -ENOMEM;
 
-    //int samplesPlayed = 0;
     int samplesPlayed = start;
     int loopCount = 0;
     int total_seconds_played = start / hdr.SampleRate;
@@ -331,6 +330,106 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
     free(buffer);
     return 0;
 }
+
+// play_wave_samples() function modified to play in reverse
+int play_wave_samples_reverse(FILE* fp, struct wave_header hdr, unsigned int start, unsigned int end, unsigned int loop)
+{
+    if (!fp) return -EINVAL;
+
+    int bytesPerSample = hdr.BitsPerSample / 8;
+    int frameSize = bytesPerSample * hdr.NumChannels; // Frame size in bytes
+    long dataOffset = start * frameSize; // Calculate offset in bytes
+    fseek(fp, 44 + dataOffset, SEEK_SET); // Skip header + offset
+
+    uint8_t* buffer = (uint8_t*)malloc(frameSize);
+    if (!buffer) return -ENOMEM;
+
+    // Move to the end of the file
+    fseek(fp, 0, SEEK_END);
+    long fileSize = ftell(fp);
+
+    // Calculate the total number of frames in the data section
+    long totalFrames = hdr.Subchunk2Size / frameSize;
+
+    // Set the initial position to the last frame
+    long currentPosition = totalFrames - 1;
+
+    int samplesPlayed = 0;
+    int loopCount = 0;
+    int total_seconds_played = start / hdr.SampleRate;
+
+    while (1)
+    {
+        // Check if playback is paused
+        if (pause_playback) {
+            usleep(100000);
+            continue;
+        }
+
+        // Check if we've reached the end of the data section
+        if (currentPosition < 0) {
+            if (loopCount < loop || loop == -1) {
+                currentPosition = totalFrames - 1; // Go back to the last frame
+                loopCount++;
+                total_seconds_played = start / hdr.SampleRate;
+                samplesPlayed = start;
+                continue;
+            } else {
+                // End of file or read error
+                printf("End of file or read error\n");
+                break;
+            }
+        }
+
+        // Set the file pointer position to the current frame
+        fseek(fp, 44 + currentPosition * frameSize, SEEK_SET);
+
+        // Read the audio data
+        if (fread(buffer, 1, frameSize, fp) < frameSize || (end != -1 && samplesPlayed <= end)) {
+            if (loopCount < loop || loop == -1) {
+                currentPosition = totalFrames - 1; // Go back to the last frame
+                loopCount++;
+                total_seconds_played = start / hdr.SampleRate;
+                samplesPlayed = start;
+                continue;
+            } else {
+                // End of file or read error
+                printf("End of file or read error\n");
+                break;
+            }
+        }
+
+        // For mono files, duplicate the sample for left and right channels
+        if (hdr.NumChannels == 1)
+        {
+            uint32_t sample = audio_word_from_buf(hdr, buffer);
+            fifo_transmit_word(sample); // Left channel
+            fifo_transmit_word(sample); // Right channel
+        }
+        else // For stereo, assume interleaved samples
+        {
+            for (int channel = 0; channel < 2; ++channel)
+            {
+                uint32_t sample = audio_word_from_buf(hdr, &buffer[channel]);
+                fifo_transmit_word(sample);
+            }
+        }
+
+        // Update play count and timestamp
+        samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
+        if (samplesPlayed % hdr.SampleRate == 0) {
+            total_seconds_played += 1;
+            printf("Current timestamp: ");
+            print_time(total_seconds_played);
+        }
+
+        // Move to the previous frame
+        currentPosition--;
+    }
+    free(buffer);
+    return 0;
+}
+
 
 // function to print minutes and seconds 
 void print_time(int total_seconds){
@@ -441,7 +540,7 @@ int main(int argc, char** argv) {
     printf("Press Ctrl+C to pause/resume playback\n");
     
     // Play the WAV file samples
-    if (play_wave_samples(fp, hdr, start, end, loop) < 0) {
+    if (play_wave_samples_reverse(fp, hdr, start, end, loop) < 0) {
         printf(stderr, "Failed to play WAV samples\n");
     }
     printf("Finished playing WAV file\n"); 
