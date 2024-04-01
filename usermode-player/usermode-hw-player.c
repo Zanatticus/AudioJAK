@@ -292,6 +292,7 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
             {
                 fseek(fp, 44, SEEK_SET); // Go back to start of data
                 loopCount++;
+                total_seconds_played = 0;
                 continue;
             }
             else
@@ -321,13 +322,31 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
         samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
         if (samplesPlayed % hdr.SampleRate == 0) {
             total_seconds_played += 1;
-            printf("Total seconds played: %d\n", total_seconds_played);
+            print_time(total_seconds_played);
         }
         //printf("samples played: %d\n", samplesPlayed);
     }
     
     free(buffer);
     return 0;
+}
+
+// function to print minutes and seconds 
+void print_time(int total_seconds){
+  int minutes = total_seconds / 60;
+  int seconds = total_seconds % 60;
+  if (seconds < 10 && minutes < 10){
+    printf("Total time played: 0%d:0%d\n", minutes, seconds);
+  }
+  else if (minutes < 10){
+    printf("Total time played: 0%d:%d\n", minutes, seconds);
+  }
+  else if (seconds < 10){
+    printf("Total time played: %d:0%d\n", minutes, seconds);
+  }
+  else {
+    printf("Total time played: %d:%d\n", minutes, seconds);
+  }
 }
 
 int main(int argc, char** argv) {
