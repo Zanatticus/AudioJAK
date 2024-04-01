@@ -7,3 +7,4 @@ Reload the systemctl daemon
 
 Start the hdmi data streaming socket
 `sudo systemctl start mongoose.service`
+This will start up a mongoose websocket SERVER that idles until the mongoose websocket CLIENT connects to it via port 8080
