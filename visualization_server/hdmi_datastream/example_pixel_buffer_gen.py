@@ -21,4 +21,4 @@ def write_pixel_data(file_path):
     print(f"Pixel data written to {file_path}")
 
 # Usage example
-write_pixel_data('./web_root/pixels.data')
+write_pixel_data('./mongoose/web_root/pixels.data')
