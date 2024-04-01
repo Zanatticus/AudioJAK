@@ -278,6 +278,10 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
     int loopCount = 0;
     int total_seconds_played = start / hdr.SampleRate;
 
+    // Print starting point timestamp
+    printf("Current timestamp: ");
+    print_time(total_seconds_played);
+
     while (1)
     {
         // Check if playback is paused
@@ -294,6 +298,9 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
                 loopCount++;
                 total_seconds_played = start / hdr.SampleRate;
                 samplesPlayed = start;
+                // Print starting point timestamp
+                printf("Current timestamp: ");
+                print_time(total_seconds_played);
                 continue;
             }
             else
@@ -356,7 +363,11 @@ int play_wave_samples_reverse(FILE* fp, struct wave_header hdr, unsigned int sta
 
     int samplesPlayed = 0;
     int loopCount = 0;
-    int total_seconds_played = start / hdr.SampleRate;
+    int total_seconds_played = hdr.Subchunk2Size / hdr.ByteRate;
+
+    // Print starting point timestamp
+    printf("Current timestamp: ");
+    print_time(total_seconds_played);
 
     while (1)
     {
@@ -371,8 +382,11 @@ int play_wave_samples_reverse(FILE* fp, struct wave_header hdr, unsigned int sta
             if (loopCount < loop || loop == -1) {
                 currentPosition = totalFrames - 1; // Go back to the last frame
                 loopCount++;
-                total_seconds_played = start / hdr.SampleRate;
+                total_seconds_played = hdr.Subchunk2Size / hdr.ByteRate;
                 samplesPlayed = start;
+                // Print starting point timestamp
+                printf("Current timestamp: ");
+                print_time(total_seconds_played);
                 continue;
             } else {
                 // End of file or read error
@@ -418,7 +432,7 @@ int play_wave_samples_reverse(FILE* fp, struct wave_header hdr, unsigned int sta
         // Update play count and timestamp
         samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
         if (samplesPlayed % hdr.SampleRate == 0) {
-            total_seconds_played += 1;
+            total_seconds_played -= 1;
             printf("Current timestamp: ");
             print_time(total_seconds_played);
         }
@@ -519,6 +533,11 @@ int main(int argc, char** argv) {
     printf("Duration of WAV file: ");
     print_time(total_seconds);
 
+    // Ask user if they want to play the file in reverse
+    char reverse;
+    printf("Do you want to play the file in reverse? (y/n): ");
+    scanf(" %c", &reverse);
+
     // Get user input for start and end time in seconds and convert to samples
     unsigned int start;
     unsigned int end;
@@ -539,9 +558,11 @@ int main(int argc, char** argv) {
     // Print instructions for pausing/resuming playback
     printf("Press Ctrl+C to pause/resume playback\n");
     
-    // Play the WAV file samples
-    if (play_wave_samples_reverse(fp, hdr, start, end, loop) < 0) {
-        printf(stderr, "Failed to play WAV samples\n");
+    // Play the WAV file samples normally or reversed based on user input
+    if (reverse == 'y') {
+        play_wave_samples_reverse(fp, hdr, start, end, loop);
+    } else {
+        play_wave_samples(fp, hdr, start, end, loop);
     }
     printf("Finished playing WAV file\n"); 
 
