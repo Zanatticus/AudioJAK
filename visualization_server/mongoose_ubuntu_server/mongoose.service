@@ -5,8 +5,7 @@ After=multi-user.target
 [Service]
 Type=simple
 Restart=always
-# ExecStart=/home/zanatticus/prj-audiojak/visualization_server/mongoose_ubuntu_server/mongoose_server/mongoose_server
-ExecStart=/usr/bin/python3 /home/zanatticus/prj-audiojak/visualization_server/visualizer.py 
+ExecStart=/home/zanatticus/prj-audiojak/visualization_server/mongoose_ubuntu_server/mongoose_server/mongoose_server
 StartLimitInterval=0
 
 [Install]
