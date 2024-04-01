@@ -274,11 +274,12 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
     uint8_t* buffer = (uint8_t*)malloc(frameSize);
     if (!buffer) return -ENOMEM;
 
-    int samplesPlayed = 0;
+    //int samplesPlayed = 0;
+    int samplesPlayed = start;
     int loopCount = 0;
-    int total_seconds_played = 0;
+    int total_seconds_played = start / hdr.SampleRate;
 
-    while (samplesPlayed < end - start || end == -1)
+    while (1)
     {
         // Check if playback is paused
         if (pause_playback) {
@@ -286,13 +287,14 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
             continue;
         }
 
-        if (fread(buffer, 1, frameSize, fp) < frameSize)
+        if (fread(buffer, 1, frameSize, fp) < frameSize || (end != -1 && samplesPlayed >= end))
         {
             if (loopCount < loop || loop == -1)
             {
-                fseek(fp, 44, SEEK_SET); // Go back to start of data
+                fseek(fp, 44 + dataOffset, SEEK_SET); // Go back to start of data
                 loopCount++;
-                total_seconds_played = 0;
+                total_seconds_played = start / hdr.SampleRate;
+                samplesPlayed = start;
                 continue;
             }
             else
@@ -322,11 +324,10 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
         samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
         if (samplesPlayed % hdr.SampleRate == 0) {
             total_seconds_played += 1;
+            printf("Current timestamp: ");
             print_time(total_seconds_played);
         }
-        //printf("samples played: %d\n", samplesPlayed);
     }
-    
     free(buffer);
     return 0;
 }
@@ -336,16 +337,16 @@ void print_time(int total_seconds){
   int minutes = total_seconds / 60;
   int seconds = total_seconds % 60;
   if (seconds < 10 && minutes < 10){
-    printf("Total time played: 0%d:0%d\n", minutes, seconds);
+    printf("0%d:0%d\n", minutes, seconds);
   }
   else if (minutes < 10){
-    printf("Total time played: 0%d:%d\n", minutes, seconds);
+    printf("0%d:%d\n", minutes, seconds);
   }
   else if (seconds < 10){
-    printf("Total time played: %d:0%d\n", minutes, seconds);
+    printf("%d:0%d\n", minutes, seconds);
   }
   else {
-    printf("Total time played: %d:%d\n", minutes, seconds);
+    printf("%d:%d\n", minutes, seconds);
   }
 }
 
@@ -414,14 +415,23 @@ int main(int argc, char** argv) {
         return -1; // Exit if configuring the CODEC fails
     }
 
-    // Get user input for the start and end samples to play 
+    // Print the duration of the WAV file 
+    int total_seconds = hdr.Subchunk2Size / hdr.ByteRate;
+    printf("Duration of WAV file: ");
+    print_time(total_seconds);
+
+    // Get user input for start and end time in seconds and convert to samples
     unsigned int start;
     unsigned int end;
-    printf("Enter the number of samples to start playing from: ");
+    printf("Enter the start time in seconds: ");
     scanf("%d", &start);
-    printf("Enter the number of samples to play (-1 for entire file): ");
+    start *= hdr.SampleRate; // Convert to samples
+    printf("Enter the end time in seconds (-1 for end of file): ");
     scanf("%d", &end);
-
+    if (end != -1) {
+        end *= hdr.SampleRate; // Convert to samples
+    }
+    
     // Get user input for loop count
     unsigned int loop;
     printf("Enter the number of times to loop (-1 for infinite): ");
