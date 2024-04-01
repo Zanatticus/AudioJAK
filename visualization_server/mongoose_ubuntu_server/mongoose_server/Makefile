@@ -1,7 +1,7 @@
 PROG ?= mongoose_server                   # Program we are building
 DELETE = rm -rf                   # Command to remove files
 OUT ?= -o $(PROG)                 # Compiler argument for output file
-SOURCES = main.c /home/zanatticus/prj-audiojak/mongoose_server/mongoose.c       # Source code files
+SOURCES = main.c ./../../../mongoose_server/mongoose.c       # Source code files
 CFLAGS = -W -Wall -Wextra -g -I.  # Build options
 
 # Mongoose build options. See https://mongoose.ws/documentation/#build-options

@@ -30,7 +30,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 
     // Store echo response in a buffer that can be read by hdmi.html to visualize the data
     FILE *fp;
-    fp = fopen("/home/zanatticus/prj-audiojak/visualization_server/mongoose_ubuntu_server/mongoose_client/test.txt", "w");
+    fp = fopen("test.txt", "w");
     fprintf(fp, "%.*s", (int) wm->data.len, wm->data.ptr);
     fclose(fp);
   }
