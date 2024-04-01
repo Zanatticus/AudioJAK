@@ -3,7 +3,7 @@ Description=HDMI data file stream
 
 [Service]
 # Note the - to make systemd ignore the exit code
-ExecStart=/usr/bin/python3 /home/zanatticus/prj-audiojak/visualization_server/hdmi_datastream/hdmi.py
+ExecStart=/usr/bin/python3 /home/zanatticus/prj-audiojak/visualization_server/hdmi_datastream/example_pixel_buffer_gen.py
 
 # This is the part that makes it work like inetd
 StandardOutput=socket
