@@ -48,14 +48,14 @@
         // Fetch the pixel data file
         // pixels.data dimensions: 1920x1080
         // jared_buffer.data dimensions: 1360x768
-        fetch('pixels.data')
+        fetch('jared_buffer.data')
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
                 const uint32Array = new Uint32Array(arrayBuffer);
 
                 // Assuming the width and height of the image
-                const width = 1920;
-                const height = 1080;
+                const width = 1360;
+                const height = 768;
 
                 // Call the drawPixels function with the pixel data
                 drawPixels(uint32Array, width, height);
