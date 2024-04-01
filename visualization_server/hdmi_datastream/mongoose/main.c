@@ -1,4 +1,11 @@
+#include <signal.h>
 #include "mongoose.h"
+
+// Handle interrupts, like Ctrl-C
+static int s_signo;
+static void signal_handler(int signo) {
+  s_signo = signo;
+}
 
 //static const char *s_url = "ws://localhost:8000/websocket";
 static const char *s_url = "ws://localhost:17";
@@ -15,11 +22,11 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
   }
   else if (ev == MG_EV_WS_OPEN) {
     // When websocket handshake is successful, send message
-    mg_ws_send(c, "hello, initialize visualizer websocket handshake please", 56, WEBSOCKET_OP_TEXT);
+    mg_ws_send(c, "DEADBEEF", 56, WEBSOCKET_OP_TEXT);
 
-    // 
-    struct mg_http_serve_opts opts = {.root_dir = s_web_root};
-    mg_http_serve_dir(c, ev_data, &opts);
+    // // 
+    // struct mg_http_serve_opts opts = {.root_dir = s_web_root};
+    // mg_http_serve_dir(c, ev_data, &opts);
   }
   else if (ev == MG_EV_WS_MSG) {
     // When we get echo response, print it
@@ -33,8 +40,9 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     fclose(fp);
   }
 
-  if (ev == MG_EV_ERROR || ev == MG_EV_CLOSE || ev == MG_EV_WS_MSG) {
-    *(bool *) c->fn_data = true;  // Signal that we're done
+  if (ev == MG_EV_ERROR || ev == MG_EV_CLOSE) {
+    printf("Data Transfer Finished. Now Idling...\n");
+    // *(bool *) c->fn_data = true;  // Signal that we're done
   }
 }
 
@@ -44,8 +52,13 @@ int main(void) {
   struct mg_connection *c;  // Client connection
   mg_mgr_init(&mgr);        // Initialise event manager
   mg_log_set(MG_LL_DEBUG);  // Set log level
+
+  // Initialise signal interrupts
+  signal(SIGINT, signal_handler);
+  signal(SIGTERM, signal_handler);
+
   c = mg_ws_connect(&mgr, s_url, fn, &done, NULL);     // Create client
-  while (c && done == false) mg_mgr_poll(&mgr, 1000);  // Wait for echo
+  while (c && s_signo == 0 && done == false) mg_mgr_poll(&mgr, 1000);  // Wait for echo
   mg_mgr_free(&mgr);                                   // Deallocate resources
   return 0;
 }
