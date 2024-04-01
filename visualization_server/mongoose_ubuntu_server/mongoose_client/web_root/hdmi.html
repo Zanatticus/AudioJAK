@@ -46,6 +46,8 @@
         }
 
         // Fetch the pixel data file
+        // pixels.data dimensions: 1920x1080
+        // jared_buffer.data dimensions: 1360x768
         fetch('pixels.data')
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
