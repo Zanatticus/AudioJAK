@@ -58,7 +58,8 @@ int main(void) {
   signal(SIGTERM, signal_handler);
 
   c = mg_ws_connect(&mgr, s_url, fn, &done, NULL);     // Create client
-  while (c && s_signo == 0 && done == false) mg_mgr_poll(&mgr, 1000);  // Wait for echo
+  while (c && s_signo == 0) mg_mgr_poll(&mgr, 1000);  // Wait for echo
   mg_mgr_free(&mgr);                                   // Deallocate resources
+  MG_INFO(("Exiting on signal %d", s_signo));
   return 0;
 }
