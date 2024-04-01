@@ -8,8 +8,7 @@ static void signal_handler(int signo) {
 }
 
 // static const char *s_url = "ws://localhost:8000/websocket";
-static const char *s_url = "ws://localhost:17/websocket";
-//static const char *s_web_root = "web_root";
+static const char *s_url = "ws://localhost:8080/websocket";
 
 // Print websocket response and signal that we're done
 static void fn(struct mg_connection *c, int ev, void *ev_data) {

@@ -5,8 +5,7 @@
 
 #include "mongoose.h"
 
-//static const char *s_listen_on = "ws://localhost:8000";
-static const char *s_listen_on = "ws://localhost:17";
+static const char *s_listen_on = "ws://localhost:8080";
 static const char *s_web_root = ".";
 
 // This RESTful server implements the following endpoints:
@@ -41,7 +40,7 @@ int main(void) {
   struct mg_mgr mgr;  // Event manager
   mg_mgr_init(&mgr);  // Initialise event manager
   printf("Starting WS listener on %s/websocket\n", s_listen_on);
-  // mg_http_listen(&mgr, s_listen_on, fn, NULL);  // Create HTTP listener
+  mg_http_listen(&mgr, s_listen_on, fn, NULL);  // Create HTTP listener
   for (;;) mg_mgr_poll(&mgr, 1000);             // Infinite event loop
   mg_mgr_free(&mgr);
   return 0;
