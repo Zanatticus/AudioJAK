@@ -30,15 +30,36 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 
     // Store echo response in a buffer that can be read by hdmi.html to visualize the data
     FILE *fp;
-    fp = fopen("test.txt", "w");
+    fp = fopen("./web_root/test.txt", "w");
     fprintf(fp, "%.*s", (int) wm->data.len, wm->data.ptr);
     fclose(fp);
   }
 
 
-  if (ev == MG_EV_ERROR || ev == MG_EV_CLOSE) {
-    printf("Data Transfer Finished. Now Idling...\n");
-    // *(bool *) c->fn_data = true;  // Signal that we're done
+  if (ev == MG_EV_ERROR || ev == MG_EV_CLOSE || ev == MG_EV_WS_MSG) {
+    printf("Data Transfer Finished. Now Streaming HDMI...\n");
+    *(bool *) c->fn_data = true;  // Signal that we're done
+  }
+}
+
+// HTTP request handler function. It implements the following endpoints:
+//   /api/video1 - hangs forever, returns MJPEG video stream
+//   all other URI - serves web_root/ directory
+static void cb(struct mg_connection *c, int ev, void *ev_data) {
+  if (ev == MG_EV_HTTP_MSG) {
+    struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+    if (mg_http_match_uri(hm, "/api/video1")) {
+      c->data[0] = 'S';  // Mark that connection as live streamer
+      mg_printf(
+          c, "%s",
+          "HTTP/1.0 200 OK\r\n"
+          "Cache-Control: no-cache\r\n"
+          "Pragma: no-cache\r\nExpires: Thu, 01 Dec 1994 16:00:00 GMT\r\n"
+          "Content-Type: multipart/x-mixed-replace; boundary=--foo\r\n\r\n");
+    } else {
+      struct mg_http_serve_opts opts = {.root_dir = "web_root"};
+      mg_http_serve_dir(c, ev_data, &opts);
+    }
   }
 }
 
@@ -53,9 +74,17 @@ int main(void) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_handler);
 
+  // Connect to websocket server to get pixel buffer data
   c = mg_ws_connect(&mgr, s_url, fn, &done, NULL);     // Create client
-  while (c && s_signo == 0) mg_mgr_poll(&mgr, 1000);  // Wait for echo
+  while (c && done == 0) mg_mgr_poll(&mgr, 1000);  // Wait for echo
   mg_mgr_free(&mgr);                                   // Deallocate resources
-  MG_INFO(("Exiting on signal %d", s_signo));
+
+  // Initialize HDMI drawing server
+  mg_mgr_init(&mgr);
+  mg_http_listen(&mgr, "http://localhost:8000", cb, NULL);
+  while(s_signo == 0) mg_mgr_poll(&mgr, 1000);
+  MG_INFO(("Exiting data_transfer on signal %d", s_signo));
+  mg_mgr_free(&mgr);
+
   return 0;
 }
