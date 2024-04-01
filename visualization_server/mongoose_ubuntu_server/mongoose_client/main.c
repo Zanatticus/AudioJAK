@@ -29,10 +29,10 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     printf("GOT ECHO REPLY: [%.*s]\n", (int) wm->data.len, wm->data.ptr);
 
     // Store echo response in a buffer that can be read by hdmi.html to visualize the data
-    // FILE *fp;
-    // fp = fopen("/home/zanatticus/prj-audiojak/visualization_server/hdmi_datastream/mongoose/web_root/test.txt", "w");
-    // fprintf(fp, "%.*s", (int) wm->data.len, wm->data.ptr);
-    // fclose(fp);
+    FILE *fp;
+    fp = fopen("/home/zanatticus/prj-audiojak/visualization_server/mongoose_ubuntu_server/mongoose_client/test.txt", "w");
+    fprintf(fp, "%.*s", (int) wm->data.len, wm->data.ptr);
+    fclose(fp);
   }
 
 
