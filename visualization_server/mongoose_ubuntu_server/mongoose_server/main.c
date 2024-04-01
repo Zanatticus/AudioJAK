@@ -15,21 +15,25 @@ static const char *s_web_root = ".";
 static void fn(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_OPEN) {
     // c->is_hexdumping = 1;
-  } else if (ev == MG_EV_HTTP_MSG) {
+  }
+  else if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
     if (mg_http_match_uri(hm, "/websocket")) {
       // Upgrade to websocket. From now on, a connection is a full-duplex
       // Websocket connection, which will receive MG_EV_WS_MSG events.
       mg_ws_upgrade(c, hm, NULL);
-    } else if (mg_http_match_uri(hm, "/rest")) {
+    }
+    else if (mg_http_match_uri(hm, "/rest")) {
       // Serve REST response
       mg_http_reply(c, 200, "", "{\"result\": %d}\n", 123);
-    } else {
+    }
+    else {
       // Serve static files
       struct mg_http_serve_opts opts = {.root_dir = s_web_root};
       mg_http_serve_dir(c, ev_data, &opts);
     }
-  } else if (ev == MG_EV_WS_MSG) {
+  }
+  else if (ev == MG_EV_WS_MSG) {
     // Got websocket frame. Received data is wm->data. Echo it back!
     struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
     mg_ws_send(c, wm->data.ptr, wm->data.len, WEBSOCKET_OP_TEXT);
