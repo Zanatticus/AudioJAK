@@ -11,8 +11,6 @@
 #include <unistd.h>
 #include <sys/signal.h>
 
-#define OUTPUT_FILE_NAME "output.data" // Output file name
-FILE* output_file = NULL; // File pointer for output file
 
 #define SND_CARD "default"
 FILE* fifo;
@@ -243,9 +241,6 @@ uint32_t audio_word_from_buf(struct wave_header hdr, uint8_t* buf)
    @param word a 32-bit word */
 void fifo_transmit_word(uint32_t word)
 {
-    // Write the word to the output file
-    fprintf(output_file, "%u\n", word);
-
     // fwrite() implementation
     int ret = fwrite(&word, 1, sizeof(uint32_t), fifo);
     if (ret != sizeof(uint32_t))
@@ -468,6 +463,83 @@ void print_time(int total_seconds){
   }
 }
 
+// Cut WAV file from start to end samples and copy to output_file
+int cut_wav_file(const char *input_file, struct wave_header hdr, const char *output_file, unsigned int start, unsigned int end) {
+    FILE *input_fp, *output_fp;
+
+    // Open input WAV file for reading
+    input_fp = fopen(input_file, "rb");
+    if (!input_fp) {
+        perror("Error opening input file");
+        return -1;
+    }
+
+    // Open output WAV file for writing
+    output_fp = fopen(output_file, "wb");
+    if (!output_fp) {
+        perror("Error opening output file");
+        fclose(input_fp);
+        return -1;
+    }
+
+    // Calculate header size
+    size_t header_size = 44;
+
+    // Write header from input file to output file
+    char buffer[1024];
+    size_t bytes_written = 0;
+    size_t bytes_to_copy = header_size;
+    size_t bytes_read;
+    while (bytes_to_copy > 0 && (bytes_read = fread(buffer, 1, sizeof(buffer), input_fp)) > 0) {
+        size_t bytes_written_current = fwrite(buffer, 1, bytes_to_copy < bytes_read ? bytes_to_copy : bytes_read, output_fp);
+        if (bytes_written_current != bytes_to_copy) {
+            perror("Error writing WAV header");
+            fclose(input_fp);
+            fclose(output_fp);
+            return -1;
+        }
+        bytes_written += bytes_written_current;
+        bytes_to_copy -= bytes_written_current;
+    }
+
+    // Calculate start and end positions in bytes
+    int bytesPerSample = hdr.BitsPerSample / 8;
+    int frameSize = bytesPerSample * hdr.NumChannels; // Frame size in bytes
+    long start_pos = start * frameSize; // Calculate offset in bytes
+    //long start_pos = header_size + start_time_seconds * 44100 * 2 * 2; // Assuming 44.1 kHz, 16-bit, stereo
+    long end_pos = end;
+
+    // Seek to start position in input file
+    if (fseek(input_fp, start_pos, SEEK_SET) != 0) {
+        perror("Error seeking in input file");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
+    // Copy data from input file to output file
+    bytes_to_copy = (end_pos == -1) ? -1 : end_pos - start_pos;
+    while ((bytes_to_copy == -1 || bytes_to_copy > 0) && (bytes_read = fread(buffer, 1, sizeof(buffer), input_fp)) > 0) {
+        size_t bytes_written_current = fwrite(buffer, 1, bytes_to_copy == -1 ? bytes_read : (bytes_to_copy < bytes_read ? bytes_to_copy : bytes_read), output_fp);
+        if (bytes_written_current != bytes_read) {
+            perror("Error writing to output file");
+            fclose(input_fp);
+            fclose(output_fp);
+            return -1;
+        }
+        if (bytes_to_copy != -1) {
+            bytes_to_copy -= bytes_written_current;
+        }
+    }
+
+    // Close files
+    fclose(input_fp);
+    fclose(output_fp);
+
+    return 0;
+}
+
+
 int main(int argc, char** argv) {
     if (argc < 2) {
         pr_usage(argv[0]);
@@ -533,17 +605,26 @@ int main(int argc, char** argv) {
         return -1; // Exit if configuring the CODEC fails
     }
 
-    // Initialize the output file
-    output_file = fopen(OUTPUT_FILE_NAME, "w");
-    if (!output_file) {
-        perror("Error opening output file");
-        fclose(fp);
-    }
-
     // Print the duration of the WAV file 
     int total_seconds = hdr.Subchunk2Size / hdr.ByteRate;
     printf("Duration of WAV file: ");
     print_time(total_seconds);
+
+    const char *input_file = argv[1];
+    const char *output_file = "output.wav";
+    unsigned int start_cut = 3;
+    start_cut *= hdr.SampleRate; // Convert to samples
+    unsigned int end_cut = -1;
+    if (end_cut != -1) {
+        end_cut *= hdr.SampleRate; // Convert to samples
+    }
+    if (cut_wav_file(input_file, hdr, output_file, start_cut, end_cut) != 0) {
+        fprintf(stderr, "Failed to cut WAV file\n");
+        return 1;
+    }
+
+    printf("WAV file cut successfully\n");
+    return 0;
 
     // Ask user if they want to play the file in reverse
     char reverse;
@@ -580,7 +661,6 @@ int main(int argc, char** argv) {
 
     // Cleanup and deinitialize
     fclose(fp);
-    fclose(output_file);
     fclose(fifo);
     snd_pcm_drain(pcm_handle); // Wait for all pending audio to play
     snd_pcm_close(pcm_handle); // Close the PCM device
