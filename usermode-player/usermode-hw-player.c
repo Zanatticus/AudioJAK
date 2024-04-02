@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <sys/signal.h>
 
+#define OUTPUT_FILE_NAME "output.data" // Output file name
+FILE* output_file = NULL; // File pointer for output file
 
 #define SND_CARD "default"
 FILE* fifo;
@@ -241,6 +243,9 @@ uint32_t audio_word_from_buf(struct wave_header hdr, uint8_t* buf)
    @param word a 32-bit word */
 void fifo_transmit_word(uint32_t word)
 {
+    // Write the word to the output file
+    fprintf(output_file, "%u\n", word);
+
     // fwrite() implementation
     int ret = fwrite(&word, 1, sizeof(uint32_t), fifo);
     if (ret != sizeof(uint32_t))
@@ -528,6 +533,13 @@ int main(int argc, char** argv) {
         return -1; // Exit if configuring the CODEC fails
     }
 
+    // Initialize the output file
+    output_file = fopen(OUTPUT_FILE_NAME, "w");
+    if (!output_file) {
+        perror("Error opening output file");
+        fclose(fp);
+    }
+
     // Print the duration of the WAV file 
     int total_seconds = hdr.Subchunk2Size / hdr.ByteRate;
     printf("Duration of WAV file: ");
@@ -568,6 +580,7 @@ int main(int argc, char** argv) {
 
     // Cleanup and deinitialize
     fclose(fp);
+    fclose(output_file);
     fclose(fifo);
     snd_pcm_drain(pcm_handle); // Wait for all pending audio to play
     snd_pcm_close(pcm_handle); // Close the PCM device
