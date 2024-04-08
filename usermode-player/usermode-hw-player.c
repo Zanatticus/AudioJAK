@@ -484,8 +484,6 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
 
     // Calculate header size
     size_t header_size = sizeof(hdr);
-    // print header size
-    printf("Header size: %zu\n", header_size);
 
     // Write header from input file to output file
     char buffer[1024];
@@ -508,7 +506,6 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
     int bytesPerSample = hdr.BitsPerSample / 8;
     int frameSize = bytesPerSample * hdr.NumChannels; // Frame size in bytes
     long start_pos = header_size + (start * frameSize); // Calculate offset in bytes
-    //long start_pos = header_size + start_time_seconds * 44100 * 2 * 2; // Assuming 44.1 kHz, 16-bit, stereo
     long end_pos = end == -1 ? -1 : header_size + (end * frameSize); // Calculate offset in bytes
 
     // Seek to start position in input file
@@ -521,7 +518,6 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
 
     // Copy data from input file to output file
     bytes_to_copy = (end_pos == -1) ? -1 : end_pos - start_pos;
-    //while ((bytes_to_copy == -1 || bytes_to_copy > 0) && (bytes_read = fread(buffer, 1, sizeof(buffer), input_fp)) > 0) {
     while ((end_pos == -1 || ftell(input_fp) < end_pos) && (bytes_read = fread(buffer, 1, frameSize, input_fp)) > 0) {
         size_t bytes_written_current = fwrite(buffer, 1, bytes_to_copy == -1 ? bytes_read : (bytes_to_copy < bytes_read ? bytes_to_copy : bytes_read), output_fp);
         if (bytes_written_current != bytes_read) {
@@ -542,6 +538,97 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
     return 0;
 }
 
+// Cut WAV file from start of file to start pos, and from end pos to end of file and copy to output_file
+int cut_wav_file_inverse(const char *input_file, struct wave_header hdr, const char *output_file, unsigned int start, unsigned int end) {
+    FILE *input_fp, *output_fp;
+
+    // Open input WAV file for reading
+    input_fp = fopen(input_file, "rb");
+    if (!input_fp) {
+        perror("Error opening input file");
+        return -1;
+    }
+
+    // Open output WAV file for writing
+    output_fp = fopen(output_file, "wb");
+    if (!output_fp) {
+        perror("Error opening output file");
+        fclose(input_fp);
+        return -1;
+    }
+
+    // Calculate header size
+    size_t header_size = sizeof(hdr);
+
+    // Write header from input file to output file
+    char buffer[1024];
+    size_t bytes_written = 0;
+    size_t bytes_to_copy = header_size;
+    size_t bytes_read;
+    while (bytes_to_copy > 0 && (bytes_read = fread(buffer, 1, sizeof(buffer), input_fp)) > 0) {
+        size_t bytes_written_current = fwrite(buffer, 1, bytes_to_copy < bytes_read ? bytes_to_copy : bytes_read, output_fp);
+        if (bytes_written_current != bytes_to_copy) {
+            perror("Error writing WAV header");
+            fclose(input_fp);
+            fclose(output_fp);
+            return -1;
+        }
+        bytes_written += bytes_written_current;
+        bytes_to_copy -= bytes_written_current;
+    }
+
+    // Calculate start and end positions in bytes
+    int bytesPerSample = hdr.BitsPerSample / 8;
+    int frameSize = bytesPerSample * hdr.NumChannels; // Frame size in bytes
+    long start_pos = header_size + (start * frameSize); // Calculate start position in bytes
+    long end_pos = header_size + (end * frameSize); // Calculate end position in bytes
+
+    // Seek to start position in input file
+    if (fseek(input_fp, header_size, SEEK_SET) != 0) {
+        perror("Error seeking in input file");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
+    // Copy data from beginning of file to start position
+    bytes_to_copy = start_pos - header_size;
+    while (bytes_to_copy > 0 && (bytes_read = fread(buffer, 1, bytes_to_copy < sizeof(buffer) ? bytes_to_copy : sizeof(buffer), input_fp)) > 0) {
+        size_t bytes_written_current = fwrite(buffer, 1, bytes_read, output_fp);
+        if (bytes_written_current != bytes_read) {
+            perror("Error writing to output file");
+            fclose(input_fp);
+            fclose(output_fp);
+            return -1;
+        }
+        bytes_to_copy -= bytes_read;
+    }
+
+    // Seek to end position in input file
+    if (fseek(input_fp, end_pos, SEEK_SET) != 0) {
+        perror("Error seeking in input file");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
+    // Copy data from end position to end of file
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), input_fp)) > 0) {
+        size_t bytes_written_current = fwrite(buffer, 1, bytes_read, output_fp);
+        if (bytes_written_current != bytes_read) {
+            perror("Error writing to output file");
+            fclose(input_fp);
+            fclose(output_fp);
+            return -1;
+        }
+    }
+
+    // Close files
+    fclose(input_fp);
+    fclose(output_fp);
+
+    return 0;
+}
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -625,7 +712,7 @@ int main(int argc, char** argv) {
     if (end_cut != -1) {
         end_cut *= hdr.SampleRate; // Convert to samples
     }
-    if (cut_wav_file(input_file, hdr, output_file, start_cut, end_cut) != 0) {
+    if (cut_wav_file_inverse(input_file, hdr, output_file, start_cut, end_cut) != 0) {
         fprintf(stderr, "Failed to cut WAV file\n");
         return 1;
     }
