@@ -483,7 +483,9 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
     }
 
     // Calculate header size
-    size_t header_size = 44;
+    size_t header_size = sizeof(hdr);
+    // print header size
+    printf("Header size: %zu\n", header_size);
 
     // Write header from input file to output file
     char buffer[1024];
