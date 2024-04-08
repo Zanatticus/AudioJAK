@@ -505,9 +505,9 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
     // Calculate start and end positions in bytes
     int bytesPerSample = hdr.BitsPerSample / 8;
     int frameSize = bytesPerSample * hdr.NumChannels; // Frame size in bytes
-    long start_pos = start * frameSize; // Calculate offset in bytes
+    long start_pos = header_size + (start * frameSize); // Calculate offset in bytes
     //long start_pos = header_size + start_time_seconds * 44100 * 2 * 2; // Assuming 44.1 kHz, 16-bit, stereo
-    long end_pos = end;
+    long end_pos = end == -1 ? -1 : header_size + (end * frameSize); // Calculate offset in bytes
 
     // Seek to start position in input file
     if (fseek(input_fp, start_pos, SEEK_SET) != 0) {
@@ -519,7 +519,8 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
 
     // Copy data from input file to output file
     bytes_to_copy = (end_pos == -1) ? -1 : end_pos - start_pos;
-    while ((bytes_to_copy == -1 || bytes_to_copy > 0) && (bytes_read = fread(buffer, 1, sizeof(buffer), input_fp)) > 0) {
+    //while ((bytes_to_copy == -1 || bytes_to_copy > 0) && (bytes_read = fread(buffer, 1, sizeof(buffer), input_fp)) > 0) {
+    while ((end_pos == -1 || ftell(input_fp) < end_pos) && (bytes_read = fread(buffer, 1, frameSize, input_fp)) > 0) {
         size_t bytes_written_current = fwrite(buffer, 1, bytes_to_copy == -1 ? bytes_read : (bytes_to_copy < bytes_read ? bytes_to_copy : bytes_read), output_fp);
         if (bytes_written_current != bytes_read) {
             perror("Error writing to output file");
@@ -612,9 +613,13 @@ int main(int argc, char** argv) {
 
     const char *input_file = argv[1];
     const char *output_file = "output.wav";
-    unsigned int start_cut = 3;
+    unsigned int start_cut;
+    printf("Enter the start time in seconds: ");
+    scanf("%d", &start_cut);
     start_cut *= hdr.SampleRate; // Convert to samples
-    unsigned int end_cut = -1;
+    unsigned int end_cut;
+    printf("Enter the end time in seconds (-1 for end of file): ");
+    scanf("%d", &end_cut);
     if (end_cut != -1) {
         end_cut *= hdr.SampleRate; // Convert to samples
     }
