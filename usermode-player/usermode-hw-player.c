@@ -630,6 +630,25 @@ int cut_wav_file_inverse(const char *input_file, struct wave_header hdr, const c
     return 0;
 }
 
+// function to get number of users on the system
+int get_num_users() {
+    FILE* fp = popen("who | wc -l", "r");
+    if (!fp) {
+        perror("Error opening pipe");
+        return -1;
+    }
+
+    int num_users;
+    if (fscanf(fp, "%d", &num_users) != 1) {
+        perror("Error reading number of users");
+        pclose(fp);
+        return -1;
+    }
+
+    pclose(fp);
+    return num_users;
+}
+
 int main(int argc, char** argv) {
     if (argc < 2) {
         pr_usage(argv[0]);
@@ -694,6 +713,14 @@ int main(int argc, char** argv) {
         snd_pcm_close(pcm_handle); // Make sure to close the ALSA PCM device on failure
         return -1; // Exit if configuring the CODEC fails
     }
+
+    // Print the number of users on system
+    int num_users = get_num_users();
+    if (num_users < 0) {
+        fprintf(stderr, "Failed to get number of users\n");
+        return 1;
+    }
+    printf("Number of users on system: %d\n", num_users);
 
     // Print the duration of the WAV file 
     int total_seconds = hdr.Subchunk2Size / hdr.ByteRate;
