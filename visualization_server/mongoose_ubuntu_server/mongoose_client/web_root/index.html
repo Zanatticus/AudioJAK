@@ -45,22 +45,33 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
-        // Fetch the pixel data file
-        // pixels.data dimensions: 1920x1080
-        // jared_hdmi.data dimensions: 1360x768
-        fetch('jared_hdmi.data')
+        // Function to fetch and draw pixel data from a file
+        function fetchAndDraw(filePath, width, height) {
+        fetch(filePath)
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
                 const uint32Array = new Uint32Array(arrayBuffer);
-
-                // Assuming the width and height of the image
-                const width = 1360;
-                const height = 768;
-
-                // Call the drawPixels function with the pixel data
                 drawPixels(uint32Array, width, height);
             })
             .catch(error => console.error('Error fetching pixel data:', error));
+        }
+
+        // Function to alternate between two files
+        function alternateDraw(index = 0) {
+            if (index == 0) {
+                fetchAndDraw('jared_hdmi.data', 1360, 768);
+            } 
+            else {
+                fetchAndDraw('pixels.data', 1920, 1080);
+            }
+            // Calculate the next index: 0 becomes 1, 1 becomes 0
+            const nextIndex = (index + 1) % 2;
+            
+            // Set a timeout to call alternateDraw again after 1 second
+            setTimeout(() => alternateDraw(nextIndex), 1000);
+        }
+        alternateDraw();
+
     </script>
 
 
