@@ -94,7 +94,6 @@
                 .catch(error => console.error('Error fetching or playing audio file:', error));
         }
     
-        // Replace 'your_audio_file.data' with the path to your audio file
         playAudioFromFile('hal_9000.wav');
     </script>
     
@@ -107,13 +106,11 @@
             // Play audio
             audio.play().catch(error => console.error('Error playing audio file:', error));
     
-            // Optional: Handle events, like when the audio is finished playing
             audio.onended = function() {
                 console.log('Audio playback finished.');
             };
         }
     
-        // Replace 'karthik_audio.data' with the path to your audio file
         // Note: Ensure the file path and format are supported in browsers
         playAudioFromFile2('sample-3s.mp3');
     </script>
