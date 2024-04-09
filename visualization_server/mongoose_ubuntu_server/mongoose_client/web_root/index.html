@@ -47,8 +47,8 @@
 
         // Fetch the pixel data file
         // pixels.data dimensions: 1920x1080
-        // jared_buffer.data dimensions: 1360x768
-        fetch('jared_buffer.data')
+        // jared_hdmi.data dimensions: 1360x768
+        fetch('jared_hdmi.data')
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
                 const uint32Array = new Uint32Array(arrayBuffer);
@@ -62,5 +62,50 @@
             })
             .catch(error => console.error('Error fetching pixel data:', error));
     </script>
+
+
+    <script>
+        // Function to play audio from a file
+        function playAudioFromFile(audioFilePath) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+            // Fetch the audio file
+            fetch(audioFilePath)
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                .then(audioBuffer => {
+                    // Create a buffer source
+                    const source = audioContext.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(audioContext.destination); // Connect to the audio output
+                    source.start(); // Play the audio
+                })
+                .catch(error => console.error('Error fetching or playing audio file:', error));
+        }
+    
+        // Replace 'your_audio_file.data' with the path to your audio file
+        playAudioFromFile('sample-3s.mp3');
+    </script>
+    
+    <script>
+        // Function to play audio from a file using HTMLAudioElement
+        function playAudioFromFile2(audioFilePath) {
+            // Create new audio object
+            const audio = new Audio(audioFilePath);
+    
+            // Play audio
+            audio.play().catch(error => console.error('Error playing audio file:', error));
+    
+            // Optional: Handle events, like when the audio is finished playing
+            audio.onended = function() {
+                console.log('Audio playback finished.');
+            };
+        }
+    
+        // Replace 'karthik_audio.data' with the path to your audio file
+        // Note: Ensure the file path and format are supported in browsers
+        playAudioFromFile2('sample-3s.mp3');
+    </script>
+    
 </body>
 </html>
