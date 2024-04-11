@@ -203,7 +203,12 @@ void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, 
     struct wave_header hdr;
 
     // open file
-    fp = fopen(filename, "r");
+    if((fp = fopen(filename, "r")))
+    {
+        fclose(fp);
+        printf("File %s does not exist.\n", filename);
+    }
+
 
     // read file header
     if(read_wave_header(fp, &hdr) != 0)
@@ -220,6 +225,21 @@ void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, 
     err = loadAudioSamples(fp, hdr, sample_count, start, samples, len);
     if(err != 0)
         printf("There was an error!\n");
+}
+
+void write_uint32_array_to_file(const char *filename, uint32_t *array, size_t size) {
+    FILE *file = fopen(filename, "wb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    size_t elements_written = fwrite(array, sizeof(uint32_t), size, file);
+    if (elements_written != size) {
+        fprintf(stderr, "Error writing to file\n");
+    }
+
+    fclose(file);
 }
 
 int main()
@@ -259,12 +279,21 @@ int main()
     {
       updateCursor(loop_start, loop_end, i);
       
-      //usleep(100);
+      usleep(10);
       i+=10;
       if(i >= loop_end)
       {
         //printf("Looping...\n");
         i = loop_start;
+      }
+
+      if(0 && i >= 235000)
+      {
+        uint32_t *toWrite = (uint32_t *)malloc(sizeof(uint32_t) * getwidth() * getheight());
+        getBuffer(toWrite);
+        write_uint32_array_to_file("buffer.data", toWrite, getwidth() * getheight());
+        free(toWrite);
+        stop=1;
       }
     }
 

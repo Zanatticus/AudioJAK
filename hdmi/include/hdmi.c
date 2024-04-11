@@ -44,6 +44,16 @@ void inithdmi()
         exit(EXIT_FAILURE);
     }
 
+    //Force resolution if wanted, not needed though because graphics will auto adjust to screen size
+    /*
+    screeninfo.xres_virtual = 1920;
+    screeninfo.yres_virtual = 1080;
+
+    if (ioctl(hdmifd, FBIOPUT_VSCREENINFO, &screeninfo)) {
+        perror("Error setting variable information");
+    }
+    */
+
     hdmiwidth = screeninfo.xres;
     hdmiheight = screeninfo.yres;
 
@@ -144,6 +154,18 @@ void drawRectangleBulk(int x1, int y1, int x2, int y2, uint32_t color)
     }
 }
 
+/* copys part of a given buffer into a rectangle on the screen */
+void drawRectangleFromBufferBulk(int x1, int y1, int x2, int y2, uint32_t *buf)
+{
+    for(int j = y1; j < y2; j++) //Loop through and set all the pixels to red
+    {
+        for(int i = x1; i < x2; i++)
+        {
+            setPixelBulk(i, j, buf[j * hdmiwidth + i]);
+        }
+    }
+}
+
 /* Draws a character */
 void drawCharacter(char ch, int x, int y, int fontSize, uint32_t color)
 {
@@ -227,4 +249,12 @@ void *refreshThread(void *arg)
 
     printf("HDMI Closed\n");
     pthread_exit(NULL);
+}
+
+/* Get the current HDMI buffer */
+void getBuffer(uint32_t *output)
+{
+    pthread_mutex_lock(&mutex);
+    memcpy(output, drawbuffer, sizeof(uint32_t) * hdmiheight * hdmiwidth);
+    pthread_mutex_unlock(&mutex);
 }

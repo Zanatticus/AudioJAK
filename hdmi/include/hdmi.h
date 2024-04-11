@@ -27,6 +27,9 @@ void drawRectangle(int x1, int y1, int x2, int y2, uint32_t color);
 /* draws rectangle in bulk mode */
 void drawRectangleBulk(int x1, int y1, int x2, int y2, uint32_t color);
 
+/* copys part of a given buffer into a rectangle on the screen */
+void drawRectangleFromBufferBulk(int x1, int y1, int x2, int y2, uint32_t *buf);
+
 /* Draws a character */
 void drawCharacter(char ch, int x, int y, int fontSize, uint32_t color);
 
@@ -48,5 +51,7 @@ int getheight();
 /* Thread function to constantly repaint screen */
 void *refreshThread(void *arg);
 
+/* Get the current HDMI buffer */
+void getBuffer(uint32_t *output);
 
 #endif

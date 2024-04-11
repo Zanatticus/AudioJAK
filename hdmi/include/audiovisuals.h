@@ -51,6 +51,9 @@ void drawPartialWaveformBulk(int snum_start, int snum_end, int sx, int sy, int e
 /* Draw waveform border to screen */
 void drawWaveformBorderBulk();
 
+/* Get the amount of samples that correspond to each pixel */
+int getSampleDifference(int sx, int ex, int numSamples);
+
 int getScreenWidth();
 
 int getScreenHeight();
