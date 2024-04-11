@@ -1,5 +1,5 @@
 # Source files
-SRCS = test.c include/hdmi.c include/audiovisuals.c
+SRCS = test.c include/hdmi.c include/audiovisuals.c include/visualizer.c
 TARGET = test
 
 FLAGS = -g -c -Wall
