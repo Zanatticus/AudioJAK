@@ -8,6 +8,7 @@
 #include <string.h>
 
 audioInfo *waveform;
+uint32_t *background;
 
 /* Helper function to map number into range */
 int map(int x, int in_min, int in_max, int out_min, int out_max) {
@@ -41,6 +42,8 @@ void initWaveform(char* filename, uint32_t *samples, int len, long sampleRate, u
     waveform->wfex = 4*w/5;
     waveform->wfsy = (h/5);
     waveform->wfey = 4*(h/5);
+
+    background = (uint32_t *)malloc(sizeof(uint32_t) * getwidth() * getheight());
 }
 
 /* Helper function to concatenate strings */
@@ -74,10 +77,6 @@ void drawWholeScreen()
 
     drawWaveformBorderBulk();
 
-    /* Draw cursors */
-    updateCursor(waveform->lcursor, waveform->rcursor, waveform->cursor);
-
-
     /* Draw filename */
     char *fn = concat("Filename: ", waveform->filename);
     int fnlen = strlen(fn);
@@ -97,15 +96,22 @@ void drawWholeScreen()
     drawString(fn, w/20, h/20 + 2* fontSize*8, fontSize, waveform->text_color);
 
     /* Draw progress bar */
+    //TBD If wanted, since cursors act as progress bar
+
+    /* Copy background */
+    getBuffer(background);
+
+    /* Draw cursors */
+    updateCursor(waveform->lcursor, waveform->rcursor, waveform->cursor);
+
+
+    
 }
 
 /* Helper function to convert sample number to cursor position */
 int cursorToX(int cursor)
 {   
     int ans = map(cursor, 0, waveform->len, waveform->wfsx, waveform->wfex);
-    //drawRectangleBulk(0, 0, getwidth(), waveform->wfsy, 0xFFFFFF);
-    //drawRectangleBulk(ans - 1, 0, ans + 1, waveform->wfsy, 0xFF0000);
-    //printf("cursor: %d (%d/%d), range:(%d, %d), answer: %d\n", cursor, 0, waveform->len, waveform->wfsx, waveform->wfex, ans);
     return ans;
 }
 
@@ -122,17 +128,17 @@ void updateCursor(int lcursor, int rcursor, int cursor)
         /* First you need to redraw the part of the waveform that was covered by the previous cursor */
         if(lcursor != -1)
         {
-            drawPartialWaveformBulk(waveform->lcursor - 1000, waveform->lcursor, waveform->wfsx, waveform->wfsy, waveform->wfex, waveform->wfey, waveform->samples, waveform->len, waveform->waveform_color);
+            drawRectangleFromBufferBulk(cursorToX(waveform->lcursor)-2, waveform->wfsy, cursorToX(waveform->lcursor)+2, waveform->wfey, background);
         }
         
         if(rcursor != -1)
         {
-            drawPartialWaveformBulk(waveform->rcursor - 1000, waveform->rcursor, waveform->wfsx, waveform->wfsy, waveform->wfex, waveform->wfey, waveform->samples, waveform->len, waveform->waveform_color);
+            drawRectangleFromBufferBulk(cursorToX(waveform->rcursor)-2, waveform->wfsy, cursorToX(waveform->rcursor)+2, waveform->wfey, background);
         }
         
         if(cursor != -1)
         {
-            drawPartialWaveformBulk(waveform->cursor - 1000, waveform->cursor, waveform->wfsx, waveform->wfsy, waveform->wfex, waveform->wfey, waveform->samples, waveform->len, waveform->waveform_color);
+            drawRectangleFromBufferBulk(cursorToX(waveform->cursor)-2, waveform->wfsy, cursorToX(waveform->cursor)+2, waveform->wfey, background);
         }
 
         /* Now, redraw the cursors */
@@ -164,6 +170,8 @@ void updateCursor(int lcursor, int rcursor, int cursor)
 /* Close the audio visualization */
 void stopAudioVisualization()
 {
+    free(background);
+
     closehdmi();
 }
 
@@ -253,11 +261,15 @@ void drawWaveform(int sx, int sy, int ex, int ey, uint32_t *samples, int len, ui
 /* Draw waveform border to screen */
 void drawWaveformBorderBulk()
 {
-    //drawRectangleBulk(waveform->wfsx, waveform->wfsy, waveform->wfex, waveform->wfsy+4, 0x0);
-    //if(cursorToX(waveform->lcursor) < waveform->wfsx + 4)
-        drawRectangleBulk(waveform->wfex - 4, waveform->wfsy, waveform->wfex, waveform->wfey, 0x0);
-    //drawRectangleBulk(waveform->wfsx, waveform->wfey-4, waveform->wfex, waveform->wfey, 0x0);
+    drawRectangleBulk(waveform->wfex - 4, waveform->wfsy, waveform->wfex, waveform->wfey, 0x0);
     drawRectangleBulk(waveform->wfsx, waveform->wfsy, waveform->wfsx + 4, waveform->wfey, 0x0);
+}
+
+int getSampleDifference(int sx, int ex, int numSamples)
+{
+    double sampleWidth = (double)(ex-sx)/(double)numSamples;
+    int skip = (int)(1/sampleWidth); //Used for scaling/graphing samples
+    return skip;
 }
 
 int getScreenWidth()

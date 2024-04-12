@@ -1,5 +1,6 @@
-#include "include/audiovisuals.h"
-#include "include/hdmi.h"
+//#include "include/audiovisuals.h"
+//#include "include/hdmi.h"
+#include "include/visualizer.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -115,7 +116,7 @@ int parse_wave_header(struct wave_header hdr)
     return -1;
 
   //print out information: number of channels, sample rate, total size
-  printf("Number of channels: %d, Sample Rate: %dHz, Total Size: %d bytes\n", hdr.numChannels, hdr.SampleRate, (hdr.chunkSize + 8));
+  //printf("Number of channels: %d, Sample Rate: %dHz, Total Size: %d bytes\n", hdr.numChannels, hdr.SampleRate, (hdr.chunkSize + 8));
 
   return 0;
 }
@@ -204,6 +205,13 @@ void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, 
 
     // open file
     fp = fopen(filename, "r");
+    /*
+    if(())
+    {
+        fclose(fp);
+        printf("File %s does not exist.\n", filename);
+    }*/
+
 
     // read file header
     if(read_wave_header(fp, &hdr) != 0)
@@ -222,36 +230,64 @@ void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, 
         printf("There was an error!\n");
 }
 
+void write_uint32_array_to_file(const char *filename, uint32_t *array, size_t size) {
+    FILE *file = fopen(filename, "wb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    size_t elements_written = fwrite(array, sizeof(uint32_t), size, file);
+    if (elements_written != size) {
+        fprintf(stderr, "Error writing to file\n");
+    }
+
+    fclose(file);
+}
+
 int main()
 {
-    //Signal handler to stop the program safely
-    signal(SIGINT, sigint_handler);
+  //Signal handler to stop the program safely
+  signal(SIGINT, sigint_handler);
 
-    initAudioVisualization();
-
-
-    int len;
-    uint32_t *waveform = NULL;
-
-    getSamples("testsounds.wav", &waveform, &len, -1, 0);
+  //initAudioVisualization();
 
 
-    printf("Screen W: %d\nScreen H: %d\n", getScreenWidth(), getScreenHeight());
+  int len;
+  uint32_t *waveform = NULL;
 
-    initWaveform("testsounds.wav", waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
+  getSamples("testsounds.wav", &waveform, &len, -1, 0);
 
-    updateCursor(-1, -1, -1);
+
+  //printf("Screen W: %d\nScreen H: %d\n", getScreenWidth(), getScreenHeight());
+
+  initVisuals("testsounds.wav", &waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
+
+  int loop_start = 230000;
+  int loop_end = len - 50000;
+  int i = loop_start;
+
+  while(!stop)
+  {
+    updateCursorValues(i, loop_start, loop_end);
+    i+=10;
+    if(i >= loop_end)
+    {
+      //printf("Looping...\n");
+      i = loop_start;
+    }
+  }
+
+  stopVisuals();
+
+
+    /*
+
+    //initWaveform("testsounds.wav", waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
+
+    //updateCursor(-1, -1, -1);
     drawWholeScreen();
 
-    //drawWaveform(160, 0, 1120, 720, waveform, len, 0xFF00FF);
-    //plotAudioWaveform(waveform, len, 0, 1280, 240, 480);
-    //int fontSize = 9;
-    //drawRectangle(0, 0, 50, getheight(), 0xFF0000);
-    //drawRectangle(getwidth() - 50, 0, getwidth(), getheight(), 0xFF0000);
-    //drawRectangle(100, 100, 100 + 8*fontSize, 100 + 8*fontSize, 0x00FF00);
-    //drawCharacter('C', 100, 100, fontSize, 0xFFFFFF);
-    //drawString("ABCD EFG", 0, 0, 10, 0xFFFFFF);
-    //drawCharacter('C', 0, 0, 1, 0xFFFFFF);
     int loop_start = 230000;
     int loop_end = len - 50000;
     int i = loop_start;
@@ -259,14 +295,23 @@ int main()
     {
       updateCursor(loop_start, loop_end, i);
       
-      //usleep(100);
+      usleep(10);
       i+=10;
       if(i >= loop_end)
       {
         //printf("Looping...\n");
         i = loop_start;
       }
+
+      if(0 && i >= 235000)
+      {
+        uint32_t *toWrite = (uint32_t *)malloc(sizeof(uint32_t) * getwidth() * getheight());
+        getBuffer(toWrite);
+        write_uint32_array_to_file("buffer.data", toWrite, getwidth() * getheight());
+        free(toWrite);
+        stop=1;
+      }
     }
 
-    stopAudioVisualization();
+    stopAudioVisualization();*/
 }
