@@ -10,7 +10,8 @@
 #include <alsa/pcm.h>
 #include <unistd.h>
 #include <sys/signal.h>
-
+#include <arpa/inet.h>
+#include <ifaddrs.h>
 
 #define SND_CARD "default"
 FILE* fifo;
@@ -649,6 +650,32 @@ int get_num_users() {
     return num_users;
 }
 
+// function to get IP address of the system
+void get_ip_address(char *ip_address) {
+    struct ifaddrs *ifap, *ifa;
+
+    if (getifaddrs(&ifap) == -1) {
+        perror("Error getting interface addresses");
+        strcpy(ip_address, "Unknown");
+        return;
+    }
+
+    // Traverse the linked list of interface addresses
+    for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
+        // Check for IPv4 address and skip loopback interface
+        if (ifa->ifa_addr != NULL && ifa->ifa_addr->sa_family == AF_INET && strcmp(ifa->ifa_name, "lo") != 0) {
+            struct sockaddr_in *addr = (struct sockaddr_in *)ifa->ifa_addr;
+            inet_ntop(AF_INET, &addr->sin_addr, ip_address, INET_ADDRSTRLEN);
+            freeifaddrs(ifap);
+            return;
+        }
+    }
+
+    // No suitable interface found
+    strcpy(ip_address, "Unknown");
+    freeifaddrs(ifap);
+}
+
 int main(int argc, char** argv) {
     if (argc < 2) {
         pr_usage(argv[0]);
@@ -722,6 +749,11 @@ int main(int argc, char** argv) {
     }
     printf("Number of users on system: %d\n", num_users);
 
+    // Print the IP address of the system
+    char ip_address[16];
+    get_ip_address(ip_address);
+    printf("IP address of the system: %s\n", ip_address);
+
     // Print the duration of the WAV file 
     int total_seconds = hdr.Subchunk2Size / hdr.ByteRate;
     printf("Duration of WAV file: ");
@@ -745,8 +777,7 @@ int main(int argc, char** argv) {
     }
 
     printf("WAV file cut successfully\n");
-    return 0;
-
+    
     // Ask user if they want to play the file in reverse
     char reverse;
     printf("Do you want to play the file in reverse? (y/n): ");
