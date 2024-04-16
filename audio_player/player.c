@@ -116,57 +116,99 @@ int main(int argc, char** argv) {
     printf("Duration of WAV file: ");
     print_time(total_seconds);
 
-    const char *input_file = argv[1];
-    const char *output_file = "output.wav";
-    unsigned int start_cut;
-    printf("Enter the start time in seconds: ");
-    scanf("%d", &start_cut);
-    start_cut *= hdr.SampleRate; // Convert to samples
-    unsigned int end_cut;
-    printf("Enter the end time in seconds (-1 for end of file): ");
-    scanf("%d", &end_cut);
-    if (end_cut != -1) {
-        end_cut *= hdr.SampleRate; // Convert to samples
+    // Main menu loop
+    int choice;
+    while (1) {
+        printf("Choose an option:\n");
+        printf("1. Play audio file\n");
+        printf("2. Play audio file in reverse\n");
+        printf("3. Cut audio file\n");
+        printf("4. Inverse cut audio file\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                // Get start and end time in seconds and convert to samples
+                unsigned int start;
+                unsigned int end;
+                printf("Enter the start time in seconds: ");
+                scanf("%d", &start);
+                start *= hdr.SampleRate; // Convert to samples
+                printf("Enter the end time in seconds (-1 for end of file): ");
+                scanf("%d", &end);
+                if (end != -1) {
+                    end *= hdr.SampleRate; // Convert to samples
+                }
+                // Get loop count
+                unsigned int loop;
+                printf("Enter the number of times to loop (-1 for infinite): ");
+                scanf("%d", &loop);
+                // Print instructions for pausing/resuming playback
+                printf("Press Ctrl+C to pause/resume playback\n");
+                play_wave_samples(fp, hdr, start, end, loop);
+                printf("Finished playing WAV file\n");
+                break;
+            case 2:
+                // Play the WAV file samples in reverse
+                unsigned int loop_2;
+                printf("Enter the number of times to loop (-1 for infinite): ");
+                scanf("%d", &loop_2);
+                play_wave_samples_reverse(fp, hdr, 0, -1, loop_2);
+                break;
+            case 3:
+                // Cut the WAV file based on user input
+                const char *input_file = argv[1];
+                const char *output_file = "output.wav";
+                unsigned int start_cut;
+                printf("Enter the start time in seconds: ");
+                scanf("%d", &start_cut);
+                start_cut *= hdr.SampleRate; // Convert to samples
+                unsigned int end_cut;
+                printf("Enter the end time in seconds (-1 for end of file): ");
+                scanf("%d", &end_cut);
+                if (end_cut != -1) {
+                    end_cut *= hdr.SampleRate; // Convert to samples
+                }
+                if (cut_wav_file(input_file, hdr, output_file, start_cut, end_cut) != 0) {
+                    fprintf(stderr, "Failed to cut WAV file\n");
+                    return 1;
+                }
+                printf("WAV file cut successfully\n");
+                break;
+            case 4:
+                // Inverse cut the WAV file based on user input
+                const char *input_file_2 = argv[1];
+                const char *output_file_2 = "output.wav";
+                unsigned int start_cut_2;
+                printf("Enter the start time in seconds: ");
+                scanf("%d", &start_cut_2);
+                start_cut_2 *= hdr.SampleRate; // Convert to samples
+                unsigned int end_cut_2;
+                printf("Enter the end time in seconds (-1 for end of file): ");
+                scanf("%d", &end_cut_2);
+                if (end_cut_2 != -1) {
+                    end_cut_2 *= hdr.SampleRate; // Convert to samples
+                }
+                if (cut_wav_file_inverse(input_file_2, hdr, output_file_2, start_cut_2, end_cut_2) != 0) {
+                    fprintf(stderr, "Failed to cut WAV file\n");
+                    return 1;
+                }
+                printf("WAV file cut successfully\n");
+                break;
+            case 5:
+                // Exit the program
+                printf("Exiting program\n");
+                fclose(fp);
+                fclose(fifo);
+                snd_pcm_drain(pcm_handle); // Wait for all pending audio to play
+                snd_pcm_close(pcm_handle); // Close the PCM device
+                i2s_disable_tx();
+                return 0;
+            default:
+                printf("Invalid choice. Please enter a valid choice.\n");
+        }
     }
-    if (cut_wav_file_inverse(input_file, hdr, output_file, start_cut, end_cut) != 0) {
-        fprintf(stderr, "Failed to cut WAV file\n");
-        return 1;
-    }
-
-    printf("WAV file cut successfully\n");
-    
-    // Ask user if they want to play the file in reverse
-    char reverse;
-    printf("Do you want to play the file in reverse? (y/n): ");
-    scanf(" %c", &reverse);
-
-    // Get user input for start and end time in seconds and convert to samples
-    unsigned int start;
-    unsigned int end;
-    printf("Enter the start time in seconds: ");
-    scanf("%d", &start);
-    start *= hdr.SampleRate; // Convert to samples
-    printf("Enter the end time in seconds (-1 for end of file): ");
-    scanf("%d", &end);
-    if (end != -1) {
-        end *= hdr.SampleRate; // Convert to samples
-    }
-    
-    // Get user input for loop count
-    unsigned int loop;
-    printf("Enter the number of times to loop (-1 for infinite): ");
-    scanf("%d", &loop);
-
-    // Print instructions for pausing/resuming playback
-    printf("Press Ctrl+C to pause/resume playback\n");
-    
-    // Play the WAV file samples normally or reversed based on user input
-    if (reverse == 'y') {
-        play_wave_samples_reverse(fp, hdr, start, end, loop);
-    } else {
-        play_wave_samples(fp, hdr, start, end, loop);
-    }
-    printf("Finished playing WAV file\n"); 
 
     // Cleanup and deinitialize
     fclose(fp);
