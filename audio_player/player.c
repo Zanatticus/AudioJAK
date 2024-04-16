@@ -1,4 +1,5 @@
 #include "audio_player.h"
+// #include "include/visualizer.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -44,6 +45,13 @@ int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
     // handle SIGTSTP (ctrl-z)
     signal(SIGTSTP, sigtstp_handler);
+
+    // Visual intialization
+    //int len;
+    //uint32_t *waveform = NULL;
+    //char *wav_file = argv[1];
+    //getSamples(wav_file, &waveform, &len, -1, 0);
+    //initVisuals(wav_file, &waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
 
     // Initialize ALSA variables
     snd_pcm_hw_params_t *params = NULL;
@@ -147,6 +155,7 @@ int main(int argc, char** argv) {
                 // Print instructions for pausing/resuming playback
                 printf("Press Ctrl+C to pause/resume playback\n");
                 play_wave_samples(fp, hdr, start, end, loop);
+                // updateCursorValues(start, end);
                 printf("Finished playing WAV file\n");
                 break;
             case 2:
@@ -155,6 +164,7 @@ int main(int argc, char** argv) {
                 printf("Enter the number of times to loop (-1 for infinite): ");
                 scanf("%d", &loop_2);
                 play_wave_samples_reverse(fp, hdr, 0, -1, loop_2);
+                // updateCursorValues(start, end);
                 break;
             case 3:
                 // Cut the WAV file based on user input
@@ -199,6 +209,7 @@ int main(int argc, char** argv) {
             case 5:
                 // Exit the program
                 printf("Exiting program\n");
+                //stopVisuals();
                 fclose(fp);
                 fclose(fifo);
                 snd_pcm_drain(pcm_handle); // Wait for all pending audio to play
@@ -211,6 +222,7 @@ int main(int argc, char** argv) {
     }
 
     // Cleanup and deinitialize
+    //stopVisuals();
     fclose(fp);
     fclose(fifo);
     snd_pcm_drain(pcm_handle); // Wait for all pending audio to play
