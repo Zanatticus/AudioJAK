@@ -250,17 +250,17 @@ int main()
   //Signal handler to stop the program safely
   signal(SIGINT, sigint_handler);
 
-  //initAudioVisualization();
-
 
   int len;
   uint32_t *waveform = NULL;
 
+  //Function defined above to get the samples from a .wav file as an uint32_t*, not included in the visualizer library
   getSamples("testsounds.wav", &waveform, &len, -1, 0);
 
 
   //printf("Screen W: %d\nScreen H: %d\n", getScreenWidth(), getScreenHeight());
-
+  
+  //This function Initializes the screen and the waveform. Needs to be called before everything else.
   initVisuals("testsounds.wav", &waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
 
   int loop_start = 230000;
@@ -269,16 +269,21 @@ int main()
 
   while(!stop)
   {
+    //This function is non-blocking and updates the cursor values. The values passed are the sample number being played, starting at 0
     updateCursorValues(i, loop_start, loop_end);
+
+    //This function updates the waveform if the samples are updated. Should not be called frequently since it is slow. Leaving commented because it is just to show what a call would look like
+    //updateWaveform(&waveform, len, 44100);
+
     i+=10;
     if(i >= loop_end)
     {
-      //printf("Looping...\n");
       i = loop_start;
       updateWaveform(&waveform, len, 44100);
     }
     
   }
 
+  //Needs to be called to stop the HDMI display and other threads
   stopVisuals();
 }
