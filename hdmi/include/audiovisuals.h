@@ -22,6 +22,12 @@ typedef struct audioInfo
     int wfex;
     int wfsy;
     int wfey;
+    int ssx;
+    int sex;
+    int ssy;
+    int sey;
+    int sw;
+    int sh;
 } audioInfo;
 
 /* Initialize the audio visualization */
@@ -53,6 +59,9 @@ void drawWaveformBorderBulk();
 
 /* Get the amount of samples that correspond to each pixel */
 int getSampleDifference(int sx, int ex, int numSamples);
+
+/* Get the current HDMI buffer */
+void getHDMIBuffer(uint32_t *output);
 
 int getScreenWidth();
 

@@ -1,5 +1,6 @@
 #include "audiovisuals.h"
 #include "hdmi.h"
+#include "spectrogram.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 
 audioInfo *waveform;
 uint32_t *background;
+uint32_t *spectrogram;
 
 /* Helper function to map number into range */
 int map(int x, int in_min, int in_max, int out_min, int out_max) {
@@ -41,9 +43,20 @@ void initWaveform(char* filename, uint32_t *samples, int len, long sampleRate, u
     waveform->wfsx = w/5;
     waveform->wfex = 4*w/5;
     waveform->wfsy = (h/5);
-    waveform->wfey = 4*(h/5);
+    waveform->wfey = 2*(h/5);
+    waveform->ssx = 3*w/40;
+    waveform->sex = 42*w/40;
+    waveform->ssy = 2*(h/5);
+    waveform->sey = 8*(h/8);
+    waveform->sw = waveform->sex - waveform->ssx;
+    waveform->sh = waveform->sey - waveform->ssy;
 
-    background = (uint32_t *)malloc(sizeof(uint32_t) * getwidth() * getheight());
+    if(!background) //Only realloc if its null
+    {
+        background = (uint32_t *)malloc(sizeof(uint32_t) * getwidth() * getheight());
+        spectrogram = (uint32_t *)malloc(sizeof(uint32_t) * waveform->sw * waveform->sh);
+        initSpectrograph();
+    }
 }
 
 /* Helper function to concatenate strings */
@@ -97,6 +110,29 @@ void drawWholeScreen()
 
     /* Draw progress bar */
     //TBD If wanted, since cursors act as progress bar
+
+    /* Draw the spectrogram */
+    printf("Getting spectrogram....\n");
+    //getSpectrogram(waveform->samples, waveform->sampleRate, waveform->len, spectrogram, waveform->sw, waveform->sh, waveform->background_color);
+    getSpectrogram(waveform->filename, spectrogram, waveform->sw, waveform->sh, waveform->background_color);
+    //printf("%d\n", (waveform->sey - waveform->ssy) * (waveform->sex - waveform->ssx));
+    long c = 0;//376992/2;
+    startPixelBulkDraw();
+    for(int j = waveform->ssy ; j < waveform->sey; j++)
+    {
+        for(int i = waveform->ssx; i < waveform->sex; i++)
+        {
+            //printf("0x%X\n", spectrogram[c]);
+            setPixelBulk(i, j, (spectrogram[c]) >> 8);
+            if(spectrogram[c] == 0x0)
+            {
+                //printf("%ld\n", c);
+            }
+            c++;
+        }
+    }
+    endPixelBulkDraw();
+    printf("Finished spectrogram\n");
 
     /* Copy background */
     getBuffer(background);
@@ -170,6 +206,8 @@ void updateCursor(int lcursor, int rcursor, int cursor)
 /* Close the audio visualization */
 void stopAudioVisualization()
 {
+    stopSpectrogram();
+    free(spectrogram);
     free(background);
 
     closehdmi();
@@ -280,4 +318,10 @@ int getScreenWidth()
 int getScreenHeight()
 {
     return getheight();
+}
+
+/* Get the current HDMI buffer */
+void getHDMIBuffer(uint32_t *output)
+{
+    getBuffer(output);
 }

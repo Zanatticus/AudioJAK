@@ -279,11 +279,11 @@ int main()
     if(i >= loop_end)
     {
       i = loop_start;
+      updateWaveform(&waveform, len, 44100);
     }
+    
   }
 
   //Needs to be called to stop the HDMI display and other threads
   stopVisuals();
-
-
 }

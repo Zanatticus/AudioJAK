@@ -1,13 +1,13 @@
 # Source files
-SRCS = test.c include/hdmi.c include/audiovisuals.c include/visualizer.c
+SRCS = test.c include/hdmi.c include/audiovisuals.c include/visualizer.c include/spectrogram.c
 TARGET = test
 
 FLAGS = -g -c -Wall
 LIBS = 
 LFLAGS = 
 LZED:=#-lzed
-LALSA:= -lasound -lpthread -lrt -ldl -lm
-INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm -I include
+LALSA:= -lasound -lpthread -lrt -ldl -lm -lpython3.11 -lpng
+INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm -I include -I include -I /usr/include/python3.11
 OBJS = $(SRCS:.c=.o)
 
 include include/zed.mk
@@ -30,3 +30,4 @@ clean:
 install:
 	sudo apt-get -y install libasound2-dev
 	sudo apt-get install libdrm-dev
+	sudo apt-get install libpng-dev
