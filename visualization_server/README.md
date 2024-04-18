@@ -8,13 +8,13 @@ Make sure systemd is available on the system.
 If not present, 
 `sudo apt-get install -y systemd`
 
-Write a new service script (located at ./visualization_server/visualizer.service) to run the visualizer.py file. Replace "zanatticus" with relevant username.
+Write a new service script (located at ./visualization_server/visualizer.service) to run the visualizer.py file. Note that modifying the file name to be visualizer@.service will indicate the service as a template, and that a new instance of the service will be run on every connection.
 `sudo nano /etc/systemd/system/visualizer.service`
 
 Reload the daemon
 `sudo systemctl daemon-reload`
 
-Enable the visualizer service so that it doesn't get disabled if the server restarts
+Enable the visualizer service so that it doesn't get disabled if the server restarts (i.e. enable for service start on boot)
 `sudo systemctl enable visualizer.service`
 
 Start the visualizer service
