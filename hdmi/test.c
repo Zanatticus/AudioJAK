@@ -275,43 +275,10 @@ int main()
     {
       //printf("Looping...\n");
       i = loop_start;
+      updateWaveform(&waveform, len, 44100);
     }
+    
   }
 
   stopVisuals();
-
-
-    /*
-
-    //initWaveform("testsounds.wav", waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
-
-    //updateCursor(-1, -1, -1);
-    drawWholeScreen();
-
-    int loop_start = 230000;
-    int loop_end = len - 50000;
-    int i = loop_start;
-    while(!stop)
-    {
-      updateCursor(loop_start, loop_end, i);
-      
-      usleep(10);
-      i+=10;
-      if(i >= loop_end)
-      {
-        //printf("Looping...\n");
-        i = loop_start;
-      }
-
-      if(0 && i >= 235000)
-      {
-        uint32_t *toWrite = (uint32_t *)malloc(sizeof(uint32_t) * getwidth() * getheight());
-        getBuffer(toWrite);
-        write_uint32_array_to_file("buffer.data", toWrite, getwidth() * getheight());
-        free(toWrite);
-        stop=1;
-      }
-    }
-
-    stopAudioVisualization();*/
 }

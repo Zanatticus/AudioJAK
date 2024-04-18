@@ -32,15 +32,38 @@ void *changeThread(void *arg)
             updateCursor(cursor, lcursor, rcursor);
             change = 0;
         }
-        else if(cursor == 2)
+        else if(change == 2)
         {
+            printf("Updating waveform\n");
             initWaveform(_wavefilename, _buffer, _len, _sampleRate, wcolor, tcolor, bcolor);
             drawWholeScreen();
+            change = 0;
         }
     }
 
     pthread_exit(NULL);
 }
+
+void print_uint32_array_to_file(const char *filename, const uint32_t *array, size_t size) {
+    // Open the file for writing
+    FILE *file = fopen(filename, "wb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    // Write the array to the file
+    size_t elements_written = fwrite(array, sizeof(uint32_t), size, file);
+    if (elements_written != size) {
+        perror("Error writing to file");
+        fclose(file);
+        return;
+    }
+
+    // Close the file
+    fclose(file);
+}
+
 
 /* Initialize the visuals */
 void initVisuals(char* filename, uint32_t **samples, int len, int sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor)
@@ -54,6 +77,8 @@ void initVisuals(char* filename, uint32_t **samples, int len, int sampleRate, ui
     _buffer = *samples;
     _len = len;
     drawWholeScreen();
+
+    //print_uint32_array_to_file("samples.txt", *samples, len);
 
     if (pthread_create(&changethread, NULL, changeThread, NULL) != 0) {
         perror("Error creating change thread");
