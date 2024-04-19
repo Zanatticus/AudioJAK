@@ -13,6 +13,7 @@
 
 snd_pcm_t *pcm_handle = NULL;
 FILE* fifo = NULL;
+unsigned char pause_playback = 0;   
 
 int i2s_enable_tx(void)
 {
