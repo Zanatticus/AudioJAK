@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 /* Initialize the spectrogram */
-void initSpectrograph();
+int initSpectrograph();
 
 /* Get the pixels of the spectrogram */
 //void getSpectrogram(uint32_t *samples, int sampleRate, int len, uint32_t *output, int w, int h, uint32_t backgroundColor);

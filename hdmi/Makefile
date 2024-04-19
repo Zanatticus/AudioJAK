@@ -6,8 +6,8 @@ FLAGS = -g -c -Wall
 LIBS = 
 LFLAGS = 
 LZED:=#-lzed
-LALSA:= -lasound -lpthread -lrt -ldl -lm -lpython3.11 -lpng
-INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm -I include -I include -I /usr/include/python3.11
+LALSA:= -lasound -lpthread -lrt -ldl -lm -lpython3.10 
+INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm -I include -I include -I python3.10 -I /home/jared/eece4534sdk/sysroots/cortexa9t2hf-neon-esl-linux-gnueabi/usr/include/libpng16
 OBJS = $(SRCS:.c=.o)
 
 include include/zed.mk
@@ -31,3 +31,6 @@ install:
 	sudo apt-get -y install libasound2-dev
 	sudo apt-get install libdrm-dev
 	sudo apt-get install libpng-dev
+
+installPython:
+	echo "Not implemented yet..."

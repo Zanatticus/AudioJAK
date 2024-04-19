@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <python3.11/Python.h>
-#include <png.h>
+#include <python3.10/Python.h>
+//#include <png.h>
 
 PyObject *sgram;
 PyObject *plotfxn;
@@ -37,103 +37,61 @@ void checkPyError(PyObject* pObject) {
 }
 
 /* Initialize the spectrogram */
-void initSpectrograph(int len)
+int initSpectrograph(int len)
 {
+    printf("Initializing\n");
     Py_Initialize();
     set_python_module_path(".");
     set_python_module_path("./include");
-    /*
-    Py_Initialize();
-    set_python_module_path(".");
-    set_python_module_path("./include");
-    //set_python_module_path("/home/jared/.local/lib/python3.11/site-packages");
-
+    set_python_module_path("./modules");
     sgram = PyImport_ImportModule("spectrogram");
-    checkPyError(sgram);
-    plotfxn = PyObject_GetAttrString(sgram, "plot_spectrogram");
-    checkPyError(plotfxn);
-*/
-    //args = PyTuple_New(5);
-    //sampleList = PyList_New(len);
+    if(sgram != NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        FILE *original_stderr = stderr;
+        freopen("/dev/null", "w", stderr);
+        Py_Finalize();
+        freopen(NULL, "w", original_stderr);
+        printf("Not using spectrogram\n");
+        return -1;
+    }
 }
 
 /* Stops spectrogram */
 void stopSpectrogram()
 {
-    //Py_DECREF(sgram);
-    //Py_DECREF(plotfxn);
     Py_Finalize();
 }
 
-void read_png_file(const char* filename, png_uint_32* width, png_uint_32* height, uint32_t *pixels) {
-    FILE *fp = fopen(filename, "rb");
-    if (!fp) {
-        fprintf(stderr, "Error: File %s could not be opened for reading\n", filename);
-        //return NULL;
+void read_integers_from_file(const char* filepath, uint32_t** integers, size_t* count) {
+    FILE* file = fopen(filepath, "rb");
+    if (file == NULL) {
+        // Handle file open error
+        return;
+    }
+    
+    // Get the file size
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    // Calculate the number of integers in the file
+    *count = file_size / sizeof(uint32_t);
+
+    if (*integers == NULL) {
+        // Handle memory allocation error
+        fclose(file);
+        return;
     }
 
-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr) {
-        fclose(fp);
-        fprintf(stderr, "Error: png_create_read_struct failed\n");
-        //return NULL;
-    }
+    // Read the integers from the file
+    fread(*integers, sizeof(uint32_t), *count, file);
 
-    png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-        png_destroy_read_struct(&png_ptr, NULL, NULL);
-        fclose(fp);
-        fprintf(stderr, "Error: png_create_info_struct failed\n");
-        return;// NULL;
-    }
-
-    if (setjmp(png_jmpbuf(png_ptr))) {
-        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-        fclose(fp);
-        fprintf(stderr, "Error: Error during png reading\n");
-        return;// NULL;
-    }
-
-    png_init_io(png_ptr, fp);
-    png_read_info(png_ptr, info_ptr);
-
-    int bit_depth, color_type;
-    png_get_IHDR(png_ptr, info_ptr, width, height, &bit_depth, &color_type, NULL, NULL, NULL);
-
-    if (color_type != PNG_COLOR_TYPE_RGBA) {
-        fprintf(stderr, "Error: Only PNG files with RGBA color type are supported\n");
-        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-        fclose(fp);
-        return;// NULL;
-    }
-
-    png_bytep* row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * (*height));
-    for (int y = 0; y < *height; y++) {
-        row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png_ptr, info_ptr));
-    }
-
-    png_read_image(png_ptr, row_pointers);
-
-    //uint32_t* pixels = (uint32_t*)malloc(sizeof(uint32_t) * (*width) * (*height));
-
-    for (int y = 0; y < *height; y++) {
-        png_bytep row = row_pointers[y];
-        for (int x = 0; x < *width; x++) {
-            png_bytep px = &(row[x * 4]);
-            uint32_t pixel = ((uint32_t)px[0] << 24) | ((uint32_t)px[1] << 16) | ((uint32_t)px[2] << 8) | (uint32_t)px[3];
-            pixels[y * (*width) + x] = pixel;
-        }
-    }
-
-    for (int y = 0; y < *height; y++) {
-        free(row_pointers[y]);
-    }
-    free(row_pointers);
-
-    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-    fclose(fp);
-
-    //return pixels;
+    // Close the file
+    fclose(file);
 }
 
 /* Get the pixels of the spectrogram */
@@ -207,8 +165,10 @@ void getSpectrogram(char* filename, uint32_t *output, int w, int h, uint32_t bac
     */
 
 
-    png_uint_32 ow=w, oh=h;
-    read_png_file("spec.png", &ow, &oh, output);
+    //png_uint_32 ow=w, oh=h;
+    size_t numPixels = w * h;
+    //read_png_file("spec.png", &ow, &oh, output);
+    read_integers_from_file("spec.data", &output, &numPixels);
 
     //printf("w: %d/%d, h: %d/%d\n", w, ow, h, oh);
 

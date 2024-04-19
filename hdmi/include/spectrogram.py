@@ -133,6 +133,11 @@ def plot_spectrogram(samples, sample_rate, h, w, background_color):
 
     return pixels
 
+def write_integers_to_file(integers, filepath):
+    with open(filepath, 'wb') as file:
+        for integer in integers:
+            file.write(integer.to_bytes(4, byteorder='little', signed=False))
+
 def plot_spectrogram_filename(filename, h, w, background_color):
 
     sample_rate, samples = wavfile.read(filename)
@@ -169,9 +174,10 @@ def plot_spectrogram_filename(filename, h, w, background_color):
 
     ##print("Finished plotting")
 
-    #pixels = plt_to_pixels(plt)
+    pixels = plt_to_pixels(plt)
+    write_integers_to_file(pixels, "spec.data")
 
-    plt.savefig("spec.png", dpi=100)
+    #plt.savefig("spec.png", dpi=100)
     #print(pixels)
 
     plt.cla()
