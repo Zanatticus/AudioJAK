@@ -479,6 +479,26 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
         }
     }
 
+    // Update Subchunk2Size in the header
+    long new_subchunk2_size = ftell(output_fp) - header_size;
+    fseek(output_fp, 40, SEEK_SET); // Offset to Subchunk2Size field
+    if (fwrite(&new_subchunk2_size, sizeof(new_subchunk2_size), 1, output_fp) != 1) {
+        perror("Error updating Subchunk2Size in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
+    // Update ChunkSize in the header
+    long new_chunk_size = new_subchunk2_size + 36; // Header size is 36 bytes
+    fseek(output_fp, 4, SEEK_SET); // Offset to ChunkSize field
+    if (fwrite(&new_chunk_size, sizeof(new_chunk_size), 1, output_fp) != 1) {
+        perror("Error updating ChunkSize in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
     // Close files
     fclose(input_fp);
     fclose(output_fp);
@@ -569,6 +589,26 @@ int cut_wav_file_inverse(const char *input_file, struct wave_header hdr, const c
             fclose(output_fp);
             return -1;
         }
+    }
+
+     // Update Subchunk2Size in the header
+    long new_subchunk2_size = ftell(output_fp) - header_size;
+    fseek(output_fp, 40, SEEK_SET); // Offset to Subchunk2Size field
+    if (fwrite(&new_subchunk2_size, sizeof(new_subchunk2_size), 1, output_fp) != 1) {
+        perror("Error updating Subchunk2Size in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
+    // Update ChunkSize in the header
+    long new_chunk_size = new_subchunk2_size + 36; // Header size is 36 bytes
+    fseek(output_fp, 4, SEEK_SET); // Offset to ChunkSize field
+    if (fwrite(&new_chunk_size, sizeof(new_chunk_size), 1, output_fp) != 1) {
+        perror("Error updating ChunkSize in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
     }
 
     // Close files
