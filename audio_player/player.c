@@ -252,8 +252,6 @@ int main(int argc, char** argv) {
                 // Print instructions for pausing/resuming playback
                 printf("Press Ctrl+C to pause/resume playback\n");
                 play_wave_samples(fp, hdr, start, end, loop);
-                //int i = start;
-                //updateCursorValues(i, start, end);
                 printf("Finished playing WAV file\n");
                 break;
             case 2:
@@ -262,7 +260,6 @@ int main(int argc, char** argv) {
                 printf("Enter the number of times to loop (-1 for infinite): ");
                 scanf("%d", &loop_2);
                 play_wave_samples_reverse(fp, hdr, 0, -1, loop_2);
-                // updateCursorValues(start, end);
                 break;
             case 3:
                 // Cut the WAV file based on user input
