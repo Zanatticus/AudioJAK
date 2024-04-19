@@ -27,6 +27,7 @@ static void sigtstp_handler(int num)
 {
     // Cleanup before terminating the code
     printf("Cleaning up before termination...\n");
+    stopVisuals();
     //fclose(fp);
     fclose(fifo);
     snd_pcm_drain(pcm_handle); 
@@ -251,8 +252,8 @@ int main(int argc, char** argv) {
                 // Print instructions for pausing/resuming playback
                 printf("Press Ctrl+C to pause/resume playback\n");
                 play_wave_samples(fp, hdr, start, end, loop);
-                int i = start;
-                updateCursorValues(i, start, end);
+                //int i = start;
+                //updateCursorValues(i, start, end);
                 printf("Finished playing WAV file\n");
                 break;
             case 2:

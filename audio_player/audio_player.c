@@ -1,4 +1,5 @@
 #include "audio_player.h"
+#include "include/visualizer.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -273,7 +274,8 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
         }
 
         samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
-        if (samplesPlayed % hdr.SampleRate == 0) {
+        updateCursorValues(samplesPlayed, start, (end == -1 ? (hdr.Subchunk2Size * 8 / hdr.BitsPerSample / hdr.NumChannels): end));
+        if (samplesPlayed % ((hdr.NumChannels == 1 ? 2 : 1)*hdr.SampleRate) == 0) {
             total_seconds_played += 1;
             printf("Current timestamp: ");
             print_time(total_seconds_played);
