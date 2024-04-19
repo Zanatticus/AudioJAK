@@ -273,9 +273,9 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
             }
         }
 
-        samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
-        updateCursorValues((samplesPlayed / 2), start, (end == -1 ? hdr.Subchunk2Size: end));
-        if (samplesPlayed % ((hdr.NumChannels == 1 ? 2 : 1)*hdr.SampleRate) == 0) {
+        samplesPlayed += (hdr.NumChannels == 1 ? 1 : 2); // Adjusting play count based on mono or stereo
+        updateCursorValues(samplesPlayed, start, (end == -1 ? hdr.Subchunk2Size: end));
+        if (samplesPlayed % ((hdr.NumChannels == 1 ? 1 : 2)*hdr.SampleRate) == 0) {
             total_seconds_played += 1;
             printf("Current timestamp: ");
             print_time(total_seconds_played);
@@ -377,9 +377,9 @@ int play_wave_samples_reverse(FILE* fp, struct wave_header hdr, unsigned int sta
         }
 
         // Update play count and timestamp
-        samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
-        updateCursorValues(hdr.Subchunk2Size - (samplesPlayed / 2), start, (end == -1 ? hdr.Subchunk2Size: end));
-        if (samplesPlayed % ((hdr.NumChannels == 1 ? 2 : 1)*hdr.SampleRate) == 0) {
+        samplesPlayed += (hdr.NumChannels == 1 ? 1 : 2); // Adjusting play count based on mono or stereo
+        updateCursorValues(hdr.Subchunk2Size- samplesPlayed, start, (end == -1 ? hdr.Subchunk2Size: end));
+        if (samplesPlayed % ((hdr.NumChannels == 1 ? 1 : 2)*hdr.SampleRate) == 0) {
             total_seconds_played -= 1;
             printf("Current timestamp: ");
             print_time(total_seconds_played);

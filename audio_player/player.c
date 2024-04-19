@@ -210,7 +210,7 @@ int main(int argc, char** argv) {
     printf("IP address of the system: %s\n", ip_address);
 
     // Print the duration of the WAV file 
-    int total_seconds = hdr.Subchunk2Size / hdr.ByteRate;
+    int total_seconds = hdr.Subchunk2Size / hdr.ByteRate; 
     printf("Duration of WAV file: ");
     print_time(total_seconds);
 
@@ -219,7 +219,7 @@ int main(int argc, char** argv) {
     uint32_t *waveform = NULL;
     char *wav_file = argv[1];
     getSamples(wav_file, &waveform, &len, -1, 0);
-    initVisuals(wav_file, &waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
+    initVisuals(wav_file, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
 
     // Main menu loop
     int choice;
