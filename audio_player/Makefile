@@ -1,37 +1,33 @@
-TARGET:=player
-SRCS:=audio_player.c player.c
-OBJS:=$(SRCS:.c=.o)
-CFLAGS:= -g
-ESL_KERNEL_VERSION ?= 5.10.0-esl
-ifeq ($(OECORE_TARGET_SYSROOT),)
-$(error "Can't determine SDK path. Verify that you have sourced the environment correctly.")
-endif
-KERNEL_SRC ?= $(OECORE_TARGET_SYSROOT)/lib/modules/$(ESL_KERNEL_VERSION)/build
-LALSA:= -lasound -lpthread -lrt -ldl -lm
+# Source files
+SRCS = player.c audio_player.c include/hdmi.c include/audiovisuals.c include/visualizer.c #include/spectrogram.c
+TARGET = player
 
-ESL_ZEDBOARD_IP?=qemu
+FLAGS = -g -c -Wall
+LIBS = 
+LFLAGS = 
+LZED:=#-lzed
+LALSA:= -lasound -lpthread -lrt -ldl -lm #-lpython3.11 -lpng
+INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm -I include #-I include -I /usr/include/python3.11
+OBJS = $(SRCS:.c=.o)
 
-PLOAD_PATH ?= /home/root/
-ZEDBOARD_IP?=qemu
+include include/zed.mk
+.PHONY: clean
 
-.PHONY: clean upload
+all: $(TARGET)
 
-all: clean_all $(TARGET) clean
-
+# Rule to build the executable
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $^ $(LALSA)
+	$(CC) -o $(TARGET) $(OBJS) $(LALSA) $(LZED) $(LFLAGS) $(LIBS) 
 
-%.o: %.c %.h
-	$(CC) $(CFLAGS) -c $<
-
+# Rule to build object files from source files
 %.o: %.c
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(FLAGS) $(INCLUDES) -o $@ $<
 
+# Clean rule
 clean:
-	rm -rf $(OBJS)
+	rm -f $(OBJS) $(TARGET)
 
-clean_all:
-	rm -rf $(OBJS) $(TARGET)
-
-upload: $(TARGET)
-	scp $(TARGET) root@$(ESL_ZEDBOARD_IP):$(UPLOAD_PATH)
+install:
+	sudo apt-get -y install libasound2-dev
+	sudo apt-get install libdrm-dev
+#	sudo apt-get install libpng-dev
