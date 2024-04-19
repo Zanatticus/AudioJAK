@@ -209,11 +209,6 @@ int main(int argc, char** argv) {
     get_ip_address(ip_address);
     printf("IP address of the system: %s\n", ip_address);
 
-    // Print the duration of the WAV file 
-    int total_seconds = hdr.Subchunk2Size / hdr.ByteRate; 
-    printf("Duration of WAV file: ");
-    print_time(total_seconds);
-
     // Visual intialization
     int len;
     uint32_t *waveform = NULL;
@@ -280,6 +275,10 @@ int main(int argc, char** argv) {
                     return 1;
                 }
                 printf("WAV file cut successfully\n");
+                fp = fopen(output_file, "rb");
+                read_wave_header(fp, &hdr);
+                getSamples(output_file, &waveform, &len, -1, 0);
+                updateWaveform(&waveform, len, hdr.SampleRate);
                 break;
             case 4:
                 // Inverse cut the WAV file based on user input
@@ -300,6 +299,10 @@ int main(int argc, char** argv) {
                     return 1;
                 }
                 printf("WAV file cut successfully\n");
+                fp = fopen(output_file, "rb");
+                read_wave_header(fp, &hdr);
+                getSamples(output_file, &waveform, &len, -1, 0);
+                updateWaveform(&waveform, len, hdr.SampleRate);
                 break;
             case 5:
                 // Exit the program
