@@ -1,4 +1,4 @@
-PROG ?= example                   # Program we are building
+PROG ?= http-server                   # Program we are building
 DELETE = rm -rf                   # Command to remove files
 OUT ?= -o $(PROG)                 # Compiler argument for output file
 SOURCES = main.c mongoose.c       # Source code files
