@@ -59,7 +59,7 @@
         // Function to alternate between two files
         function alternateDraw(index = 0) {
             if (index == 0) {
-                fetchAndDraw('jared_hdmi.data', 1360, 768);
+                fetchAndDraw('hdmi_wav.data', 1360, 768);
             } 
             else {
                 fetchAndDraw('pixels.data', 1920, 1080);
@@ -71,7 +71,7 @@
             setTimeout(() => alternateDraw(nextIndex), 1000);
         }
         //alternateDraw();
-        fetchAndDraw('jared_hdmi.data', 1360, 768);
+        fetchAndDraw('hdmi_wav.data', 1360, 768);
 
     </script>
     
