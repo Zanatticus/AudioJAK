@@ -17,11 +17,33 @@ static void signal_handler(int signo) {
   s_signo = signo;
 }
 
+// Handle the CORS preflight request to solve the failed .m3u8 request
+// Note that the asterisk * should be replaced with an actual origin in a production environment
+// Since not doing so is a security vulnerability :(
+static void set_cors_headers(struct mg_connection *c) {
+    mg_http_reply(c, 204, "Access-Control-Allow-Origin: *\n"
+                          "Access-Control-Allow-Methods: GET, POST, OPTIONS\n"
+                          "Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token\n"
+                          "Access-Control-Expose-Headers: Content-Length,Content-Range", "");
+}
+
+
+
+
 // Event handler for the listening connection.
 // Simply serve static files from `s_root_dir`
 static void cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = ev_data;
+
+    // Handle OPTIONS requests for CORS preflight
+    if (mg_http_match_uri(hm, "*")) {
+        if (mg_http_match_method(hm, "OPTIONS")) {
+            set_cors_headers(c);
+            return; // Stop further processing of this preflight request
+        }
+    }
+
 
     if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
       // Serve file upload
