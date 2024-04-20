@@ -84,7 +84,7 @@ void closehdmi()
     usleep(100000); //Give enough time to stop
     //Destroy the mutex
     pthread_mutex_destroy(&mutex);
-
+    pthread_join(paintthread, NULL);
     //Unmap the hdmi
     munmap(hdmidata, hdmiwidth * hdmiheight * 4);
 }
@@ -224,6 +224,20 @@ void drawString(char *word, int x, int y, int fontSize, uint32_t color)
     endPixelBulkDraw();
 }
 
+/* Draws a string to the screen */
+void drawStringCentered(char *word, int x, int y, int fontSize, uint32_t color)
+{
+    int len = strlen(word);
+    int offw = ((len) * (fontSize * 8)) / 2;
+    int offh = (fontSize * 8) / 2;
+    startPixelBulkDraw();
+    for(int i = 0; i < len; i++)
+    {
+        drawCharacterBulk(word[i], x + (i * 8 * fontSize) - offw, y - offh, fontSize, color);
+    }
+    endPixelBulkDraw();
+}
+
 /* Gets the height of the screen */
 int getheight()
 {
@@ -246,9 +260,9 @@ void *refreshThread(void *arg)
         pthread_mutex_unlock(&mutex);
         usleep(100);
     }
+    pthread_exit(NULL);
 
     printf("HDMI Closed\n");
-    pthread_exit(NULL);
 }
 
 /* Get the current HDMI buffer */

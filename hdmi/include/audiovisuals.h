@@ -28,13 +28,17 @@ typedef struct audioInfo
     int sey;
     int sw;
     int sh;
+    char* ip;
+    char* numUsers;
+    int w;
+    int h;
 } audioInfo;
 
 /* Initialize the audio visualization */
 void initAudioVisualization();
 
 /* Initialize the waveform drawing */
-void initWaveform(char* filename, uint32_t *samples, int len, long sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor);
+void initWaveform(char* filename, char *ip, char* num_users, uint32_t *samples, int len, long sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor);
 
 /* Draws the entire audio visualization screen, expensive and slow. Only use for major updates*/
 void drawWholeScreen();

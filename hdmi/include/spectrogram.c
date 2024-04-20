@@ -3,7 +3,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#if( __has_include("python3.10/Python.h"))
 #include <python3.10/Python.h>
+#else
+#include <python3.11/Python.h>
+#endif
 //#include <png.h>
 
 PyObject *sgram;
@@ -44,9 +48,10 @@ int initSpectrograph(int len)
     set_python_module_path(".");
     set_python_module_path("./include");
     set_python_module_path("./modules");
-    sgram = PyImport_ImportModule("spectrogram");
+    sgram = PyImport_ImportModule("spectrogram"); //Set to NULL to not use spectrogram
     if(sgram != NULL)
     {
+        printf("Using spectrogam\n");
         return 0;
     }
     else

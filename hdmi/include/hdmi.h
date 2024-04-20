@@ -39,6 +39,9 @@ void drawCharacterBulk(char ch, int x, int y, int fontSize, uint32_t color);
 /* Draws a string to the screen */
 void drawString(char *string, int x, int y, int fontSize, uint32_t color);
 
+/* Draws a string centered around the x, y */
+void drawStringCentered(char *word, int x, int y, int fontSize, uint32_t color);
+
 /* Sends the current buffer to the screen. Note, no drawings will appear until this function is called */
 void paint();
 

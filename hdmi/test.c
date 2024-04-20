@@ -261,7 +261,7 @@ int main()
   //printf("Screen W: %d\nScreen H: %d\n", getScreenWidth(), getScreenHeight());
   
   //This function Initializes the screen and the waveform. Needs to be called before everything else.
-  initVisuals("testsounds.wav", &waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
+  initVisuals("testsounds.wav", "IP: 123.45.67.890", "Number of Users: 1", &waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
 
   int loop_start = 230000;
   int loop_end = len - 50000;
@@ -279,7 +279,7 @@ int main()
     if(i >= loop_end)
     {
       i = loop_start;
-      updateWaveform(&waveform, len, 44100);
+      updateWaveform(&waveform, len, 44100, "IP: 123.45.67.890", "Number of Users: 1");
     }
     
   }

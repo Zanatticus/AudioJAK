@@ -25,7 +25,7 @@ void initAudioVisualization()
 }
 
 /* Initialize the waveform drawing */
-void initWaveform(char* filename, uint32_t *samples, int len, long sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor)
+void initWaveform(char* filename, char *ip, char* num_users, uint32_t *samples, int len, long sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor)
 {
     if(!background) //Only realloc if its null
     {
@@ -33,6 +33,8 @@ void initWaveform(char* filename, uint32_t *samples, int len, long sampleRate, u
         background = (uint32_t *)malloc(sizeof(uint32_t) * getwidth() * getheight());
         useSpectrogram = initSpectrograph();
     }
+    waveform->ip = ip;
+    waveform->numUsers = num_users;
     waveform->sampleRate = sampleRate;
     waveform->filename = filename;
     waveform->len = len;
@@ -46,19 +48,22 @@ void initWaveform(char* filename, uint32_t *samples, int len, long sampleRate, u
     waveform->rcursor = -1;
     int w = getwidth();
     int h = getheight();
+    waveform->w = w;
+    waveform->h = h;
+    waveform->ssx = 3*w/40;
+    waveform->sex = 42*w/40;
+    waveform->ssy = 2*(h/5);
+    waveform->sey = 8*(h/8);
+    waveform->sw = waveform->sex - waveform->ssx;
+    waveform->sh = waveform->sey - waveform->ssy;
     if(useSpectrogram == 0)
     {
         waveform->wfsx = w/5;
         waveform->wfex = 4*w/5;
         waveform->wfsy = (h/5);
         waveform->wfey = 2*(h/5);
-        waveform->ssx = 3*w/40;
-        waveform->sex = 42*w/40;
-        waveform->ssy = 2*(h/5);
-        waveform->sey = 8*(h/8);
-        waveform->sw = waveform->sex - waveform->ssx;
-        waveform->sh = waveform->sey - waveform->ssy;
-        if(!background)
+        
+        if(!spectrogram)
             spectrogram = (uint32_t *)malloc(sizeof(uint32_t) * waveform->sw * waveform->sh);
     }
     else
@@ -127,6 +132,7 @@ void drawWholeScreen()
     /* Draw the spectrogram */
     if(useSpectrogram == 0)
     {
+        drawStringCentered("Loading Spectrogram", (waveform->wfex - waveform->wfsx)/2 + waveform->wfsx, (waveform->sey - waveform->ssy)/2 + waveform->ssy, fontSize, waveform->text_color);
         printf("Getting spectrogram....\n");
         //getSpectrogram(waveform->samples, waveform->sampleRate, waveform->len, spectrogram, waveform->sw, waveform->sh, waveform->background_color);
         getSpectrogram(waveform->filename, spectrogram, waveform->sw, waveform->sh, waveform->background_color);
@@ -138,7 +144,7 @@ void drawWholeScreen()
             for(int i = waveform->ssx; i < waveform->sex; i++)
             {
                 //printf("0x%X\n", spectrogram[c]);
-                setPixelBulk(i, j, (spectrogram[c]) >> 8);
+                setPixelBulk(i, j, (spectrogram[c]));
                 if(spectrogram[c] == 0x0)
                 {
                     //printf("%ld\n", c);
@@ -148,6 +154,11 @@ void drawWholeScreen()
         }
         endPixelBulkDraw();
         printf("Finished spectrogram\n");
+    }
+    else{
+        int sheight = fontSize * 8;
+        drawStringCentered(waveform->ip, (waveform->wfex - waveform->wfsx)/2 + waveform->wfsx, (waveform->h - waveform->wfey)/2 + waveform->wfey - sheight/2, fontSize, waveform->text_color);
+        drawStringCentered(waveform->numUsers, (waveform->wfex - waveform->wfsx)/2 + waveform->wfsx, (waveform->h - waveform->wfey)/2 + waveform->wfey + sheight/2, fontSize, waveform->text_color);
     }
 
     /* Copy background */
@@ -223,9 +234,13 @@ void updateCursor(int lcursor, int rcursor, int cursor)
 void stopAudioVisualization()
 {
     if(useSpectrogram == 0)
+    {
         stopSpectrogram();
-    free(spectrogram);
+        free(spectrogram);
+    }
     free(background);
+
+    printf("Stopped Audio Visualization\n");
 
     closehdmi();
 }
