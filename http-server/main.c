@@ -51,7 +51,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
     } 
     else if (mg_http_match_uri(hm, "/hls/*")) {
       char file_path[256];
-      snprintf(file_path, sizeof(file_path), "/hls/%.*s", (int)hm->uri.len - 5, hm->uri.ptr + 5);
+      snprintf(file_path, sizeof(file_path), "hls/%.*s", (int)hm->uri.len - 5, hm->uri.ptr + 5);
 
       FILE *fp = fopen(file_path, "wb");
       if (fp != NULL) {
