@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDMI Pixel Viewer</title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // Function to draw pixels on canvas
+        function drawPixels(data, width, height) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Resize canvas according to image dimensions
+            canvas.width = width;
+            canvas.height = height;
+
+            // Create ImageData object
+            const imageData = ctx.createImageData(width, height);
+            const pixelData = imageData.data;
+
+            // Process pixel data
+            for (let i = 0; i < data.length; i++) {
+                const pixelValue = data[i];
+                const r = (pixelValue >> 16) & 0xFF;
+                const g = (pixelValue >> 8) & 0xFF;
+                const b = pixelValue & 0xFF;
+
+                const index = i * 4; // 4 bytes per pixel (RGBA)
+                pixelData[index] = r;
+                pixelData[index + 1] = g;
+                pixelData[index + 2] = b;
+                pixelData[index + 3] = 255; // Alpha channel
+            }
+
+            // Put pixel data onto the canvas
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Function to fetch and draw pixel data from a file
+        function fetchAndDraw(filePath, width, height) {
+        fetch(filePath)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                const uint32Array = new Uint32Array(arrayBuffer);
+                drawPixels(uint32Array, width, height);
+            })
+            .catch(error => console.error('Error fetching pixel data:', error));
+        }
+
+        // Function to alternate between two files
+        function alternateDraw(index = 0) {
+            if (index == 0) {
+                fetchAndDraw('jared_hdmi.data', 1360, 768);
+            } 
+            else {
+                fetchAndDraw('pixels.data', 1920, 1080);
+            }
+            // Calculate the next index: 0 becomes 1, 1 becomes 0
+            const nextIndex = (index + 1) % 2;
+            
+            // Set a timeout to call alternateDraw again after 1 second
+            setTimeout(() => alternateDraw(nextIndex), 1000);
+        }
+        //alternateDraw();
+        fetchAndDraw('jared_hdmi.data', 1360, 768);
+
+    </script>
+    
+</body>
+</html>
