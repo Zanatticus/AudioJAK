@@ -2,7 +2,7 @@
 SOURCE="hw:CARD=3,DEV=0"
 AUDIO_OPTS="-re -f alsa -ac 2 -ar 48000 -sample_fmt s16"
 OUTPUT_OPTS="-acodec libmp3lame -f hls -hls_time 2 -hls_list_size 15 -hls_segment_filename '/stream/audio%02d.ts' -hls_flags delete_segments"
-HLS_URL="/stream/stream.m3u8"
+HLS_URL="http://localhost:8000/stream/stream.m3u8"
 
 ffmpeg $AUDIO_OPTS -i "$SOURCE" $OUTPUT_OPTS $HLS_URL
 
