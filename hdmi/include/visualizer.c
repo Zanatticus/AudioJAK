@@ -12,7 +12,7 @@ pthread_t changethread;
 uint32_t bcolor, tcolor, wcolor;
 
 uint32_t *_buffer;
-char* _wavefilename;
+char* _wavefilename, *_ip, *_num_users;
 int _len;
 int _sampleRate;
 
@@ -35,7 +35,7 @@ void *changeThread(void *arg)
         else if(change == 2)
         {
             printf("Updating waveform\n");
-            initWaveform(_wavefilename, _buffer, _len, _sampleRate, wcolor, tcolor, bcolor);
+            initWaveform(_wavefilename, _ip, _num_users, _buffer, _len, _sampleRate, wcolor, tcolor, bcolor);
             drawWholeScreen();
             change = 0;
         }
@@ -66,16 +66,18 @@ void print_uint32_array_to_file(const char *filename, const uint32_t *array, siz
 
 
 /* Initialize the visuals */
-void initVisuals(char* filename, uint32_t **samples, int len, int sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor)
+void initVisuals(char* filename, char* ip, char* numUsers, uint32_t **samples, int len, int sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor)
 {
     initAudioVisualization();
-    initWaveform(filename, *samples, len, sampleRate, waveformColor, textColor, backgroundColor);
+    initWaveform(filename, ip, numUsers, *samples, len, sampleRate, waveformColor, textColor, backgroundColor);
     wcolor = waveformColor;
     tcolor = textColor;
     bcolor = backgroundColor;
     _wavefilename = filename;
     _buffer = *samples;
     _len = len;
+    _ip = ip;
+    _num_users = numUsers;
     drawWholeScreen();
 
     //print_uint32_array_to_file("samples.txt", *samples, len);
@@ -92,6 +94,7 @@ void stopVisuals()
     stopTheVisuals = 1;
     stopAudioVisualization();
     usleep(1000000);
+    pthread_join(changethread, NULL);
 }
 
 /* Updates the cursor values */
@@ -105,11 +108,13 @@ void updateCursorValues(int cur, int lcur, int rcur)
 }
 
 /* Updates the waveform with new samples */
-void updateWaveform(uint32_t **samples, int len, int sampleRate)
+void updateWaveform(uint32_t **samples, int len, int sampleRate, char *ip, char *numUsers)
 {
     //while(change != 0){ /* Wait for change */}
     _buffer = *samples;
     _len = len;
     _sampleRate = sampleRate;
+    _num_users = numUsers;
+    _ip = ip;
     change = 2;
 }

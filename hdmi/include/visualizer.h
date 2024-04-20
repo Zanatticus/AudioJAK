@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 /* Initialize the visuals */
-void initVisuals(char* filename, uint32_t **samples, int len, int sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor);
+void initVisuals(char* filename, char* ip, char* numUsers, uint32_t **samples, int len, int sampleRate, uint32_t waveformColor, uint32_t textColor, uint32_t backgroundColor);
 
 /* Stop visuals */
 void stopVisuals();
@@ -15,6 +15,6 @@ void stopVisuals();
 void updateCursorValues(int cursor, int lcursor, int rcursor);
 
 /* Updates the waveform with new samples */
-void updateWaveform(uint32_t **samples, int len, int sampleRate);
+void updateWaveform(uint32_t **samples, int len, int sampleRate, char *ip, char *numUsers);
 
 #endif
