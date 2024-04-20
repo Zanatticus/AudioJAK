@@ -38,10 +38,10 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
 
     // Handle OPTIONS requests for CORS preflight
     if (mg_http_match_uri(hm, "*")) {
-        if (mg_http_match_method(hm, "OPTIONS")) {
-            set_cors_headers(c);
-            return; // Stop further processing of this preflight request
-        }
+      if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
+              set_cors_headers(c);
+              return; // Stop further processing of this preflight request
+          }
     }
 
 
