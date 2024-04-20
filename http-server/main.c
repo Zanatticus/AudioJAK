@@ -9,7 +9,7 @@ static const char *s_root_dir = ".";
 static const char *s_listening_address = "http://0.0.0.0:8000";
 static const char *s_enable_hexdump = "no";
 static const char *s_ssi_pattern = "#.html";
-static const char *s_upload_dir = "/hls";  // File uploads disabled by default if set to NULL
+static const char *s_upload_dir = "/upload";  // File uploads disabled by default if set to NULL
 
 // Handle interrupts, like Ctrl-C
 static int s_signo;
@@ -23,7 +23,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = ev_data;
 
-    if (mg_match(hm->uri, mg_str("/hls"), NULL)) {
+    if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
       // Serve file upload
       if (s_upload_dir == NULL) {
         mg_http_reply(c, 403, "", "Denied: file upload directory not set\n");
@@ -48,7 +48,23 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
         mg_http_reply(c, 200, "", "Uploaded %lu files, %lu bytes\n", num_files,
                       total_bytes);
       }
-    } else {
+    } 
+    else if (mg_http_match_uri(hm, "/hls/*")) {
+      char file_path[256];
+      snprintf(file_path, sizeof(file_path), "web_root/hls/%.*s", (int)hm->uri.len - 5, hm->uri.ptr + 5);
+
+      FILE *fp = fopen(file_path, "wb");
+      if (fp != NULL) {
+          fwrite(hm->body.ptr, 1, hm->body.len, fp);
+          fclose(fp);
+          mg_http_reply(c, 200, "", "File stored\n");
+      } 
+      else {
+          mg_http_reply(c, 500, "", "Could not store file\n");
+      }
+    }
+    
+    else {
       // Serve web root directory
       struct mg_http_serve_opts opts = {0};
       opts.root_dir = s_root_dir;
