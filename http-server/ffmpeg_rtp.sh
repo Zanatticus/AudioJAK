@@ -7,3 +7,6 @@ ffmpeg $AUDIO_OPTS -i "$SOURCE" $OUTPUT_OPTS $OUTPUT
 
 # Essentially does the below command:
 # ffmpeg -re -f alsa -ac 2 -ar 48000 -sample_fmt s16 -i hw:CARD=3,DEV=0 -acodec libmp3lame -f rtp rtp://127.0.0.1:1234
+
+# This shell script is for streaming audio from the Raspberry Pi 
+# its localhost RTP port to verify that it can capture audio from the soundcard.
