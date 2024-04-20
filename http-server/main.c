@@ -22,8 +22,8 @@ static void signal_handler(int signo) {
 // Since not doing so is a security vulnerability :(
 static void set_cors_headers(struct mg_connection *c) {
     mg_http_reply(c, 204, "Access-Control-Allow-Origin: *\n"
-                          "Access-Control-Allow-Methods: GET, POST, OPTIONS\n"
-                          "Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token\n"
+                          "Access-Control-Allow-Methods: *\n"
+                          "Access-Control-Allow-Headers: *\n"
                           "Access-Control-Expose-Headers: Content-Length,Content-Range", "");
 }
 
@@ -38,6 +38,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
 
     // Handle OPTIONS requests for CORS preflight
     if (mg_http_match_uri(hm, "*")) {
+      printf("\n\nMethod: %.*s\n", (int)hm->method.len, hm->method.ptr);
       if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
               set_cors_headers(c);
               return; // Stop further processing of this preflight request
