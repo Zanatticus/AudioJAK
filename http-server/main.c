@@ -36,10 +36,13 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = ev_data;
 
+    // print the hm struct
+    printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
+
     if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
           printf("Pre-flight OPTIONS request received\n");
     
-          // Returns the Released CORS (ALL);;
+          // Returns the Released CORS (ALL)
           mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
                         "No Content");
     } 
