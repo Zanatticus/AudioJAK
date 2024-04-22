@@ -27,7 +27,23 @@
     }
   </script>
 
+  <script>
+    // Function to play audio from a file using HTMLAudioElement
+    function playAudioFromFile2(audioFilePath) {
+        // Create new audio object
+        const audio = new Audio(audioFilePath);
 
+        // Play audio
+        audio.play().catch(error => console.error('Error playing audio file:', error));
+
+        audio.onended = function() {
+            console.log('Audio playback finished.');
+        };
+    }
+
+    // Note: Ensure the file path and format are supported in browsers
+    playAudioFromFile2('sample-15s.mp3');
+</script>
   
 </body>
 </html>
