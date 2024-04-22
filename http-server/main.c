@@ -111,6 +111,11 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
       opts.root_dir = s_root_dir;
       opts.ssi_pattern = s_ssi_pattern;
       mg_http_serve_dir(c, hm, &opts);
+      printf("2Pre-flight OPTIONS request received\n");
+
+      // Returns the Released CORS (ALL)
+      mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
+                    "No Content");
     }
 
     // Log request
