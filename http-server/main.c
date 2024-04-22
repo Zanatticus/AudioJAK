@@ -36,15 +36,23 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = ev_data;
 
-    // Handle OPTIONS requests for CORS preflight
-    if (mg_http_match_uri(hm, "*")) {
-      printf("\n\nMethod: %.*s\n", (int)hm->method.len, hm->method.ptr);
-      if (mg_match(hm->method, mg_str("OPTIONS"), NULL)) {
-              printf("OPTIONS request\n\n");
-              set_cors_headers(c);
-              return; // Stop further processing of this preflight request
-          }
-    }
+    if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
+          printf("Pre-flight OPTIONS request received\n");
+    
+          // Returns the Released CORS (ALL);;
+          mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
+                        "No Content");
+    } 
+
+    // // Handle OPTIONS requests for CORS preflight
+    // if (mg_http_match_uri(hm, "*")) {
+    //   printf("\n\nMethod: %.*s\n", (int)hm->method.len, hm->method.ptr);
+    //   if (mg_match(hm->method, mg_str("OPTIONS"), NULL)) {
+    //           printf("OPTIONS request\n\n");
+    //           set_cors_headers(c);
+    //           return; // Stop further processing of this preflight request
+    //       }
+    // }
 
 
     if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
