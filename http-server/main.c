@@ -39,6 +39,10 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
     // print the hm struct
    // printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
 
+    // modify the hm method line to contain /stream.m3u8
+    hm->method.ptr = "GET /stream.m3u8 HTTP/1.1";
+    hm->method.len = 25;
+
     //print just the hm struct:
     printf("hm: %.*s\n", (int)hm->message.len, hm->message.ptr);
 
