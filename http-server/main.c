@@ -62,6 +62,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
 
 
     if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
+      printf("Upload request\n");
       // Serve file upload
       if (s_upload_dir == NULL) {
         mg_http_reply(c, 403, "", "Denied: file upload directory not set\n");
@@ -88,6 +89,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
       }
     } 
     else if (mg_http_match_uri(hm, "/hls/*")) {
+      printf("hm->uri: %.*s\n", (int)hm->uri.len, hm->uri.ptr);
       char file_path[256];
       snprintf(file_path, sizeof(file_path), "hls/%.*s", (int)hm->uri.len - 5, hm->uri.ptr + 5);
 
@@ -103,6 +105,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
     }
     
     else {
+      printf("s_root_dir: %s\n", s_root_dir);
       // Serve web root directory
       struct mg_http_serve_opts opts = {0};
       opts.root_dir = s_root_dir;
