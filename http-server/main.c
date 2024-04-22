@@ -37,7 +37,10 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
     struct mg_http_message *hm = ev_data;
 
     // print the hm struct
-    printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
+   // printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
+
+    //print just the hm struct:
+    printf("hm: %.*s\n", (int)hm->message.len, hm->message.ptr);
 
     if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
           printf("Pre-flight OPTIONS request received\n");
