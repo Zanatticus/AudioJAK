@@ -1,5 +1,5 @@
 #include "audio_player.h"
-#include "include/visualizer.h"
+//#include "include/visualizer.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
