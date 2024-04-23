@@ -180,8 +180,7 @@ void drawWholeScreen()
     getBuffer(background);
 
     /* Write to server file */
-    write_uint32_array_to_file("~/http-server/web_root/hdmi.dat", background, waveform->w * waveform->h);
-
+    write_uint32_array_to_file("http-server/web_root/hdmi.dat", background, waveform->w * waveform->h);
 
     /* Draw cursors */
     updateCursor(waveform->lcursor, waveform->rcursor, waveform->cursor);

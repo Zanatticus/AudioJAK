@@ -250,15 +250,53 @@ int getwidth()
     return hdmiwidth;
 }
 
+#include <time.h>
+#define TIME_COUNT 1000.0
+
 /* Thread function to constantly repaint screen */
 void *refreshThread(void *arg)
 {
+    clock_t start, end;
+    double cpu_time_used;
+
+    double times[(int)(TIME_COUNT)];
+    int c = 0;
+
+
     while(!stophdmi)
     {
+        start = clock();
         pthread_mutex_lock(&mutex);
         paint();
         pthread_mutex_unlock(&mutex);
         usleep(100);
+        end = clock();
+        if(c < TIME_COUNT)
+        {
+            times[c] = ((double) (end - start)) / CLOCKS_PER_SEC * 1000;
+            c++;
+        }
+        else if(c == TIME_COUNT)
+        {
+            double avg=0, min=times[0], max=times[0];
+            printf("Finished taking times\n");
+            for(int i = 0; i < TIME_COUNT;i++)
+            {
+                avg += times[i];
+                if(times[i] < min)
+                {
+                    min = times[i];
+                }
+                if(times[i] > max)
+                {
+                    max = times[i];
+                }
+            }
+
+            printf("Avg time: %f ms\nMininum Time: %f ms\nMaximum Time: %f ms\n", (avg/TIME_COUNT), min, max);
+            c++;
+        }
+            
     }
     pthread_exit(NULL);
 
