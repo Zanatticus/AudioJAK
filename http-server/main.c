@@ -102,6 +102,12 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
       else {
         // If GET request, respond with CORS headers
         set_cors_headers(c);
+
+        // Serve web root directory
+        struct mg_http_serve_opts opts = {0};
+        opts.root_dir = s_root_dir;
+        opts.ssi_pattern = s_ssi_pattern;
+        mg_http_serve_dir(c, hm, &opts);
       }
 
     }
