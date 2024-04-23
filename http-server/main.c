@@ -85,6 +85,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
       }
       // If GET request do the following:
       else if (mg_vcmp(&hm->method, "GET") == 0) {
+        printf("\nGET request\n");
         FILE *fp = fopen(file_path, "rb");
         if (fp != NULL) {
             fseek(fp, 0, SEEK_END);
@@ -104,7 +105,6 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
     }
     
     else {
-      printf("s_root_dir: %s\n", s_root_dir);
       // Serve web root directory
       struct mg_http_serve_opts opts = {0};
       opts.root_dir = s_root_dir;
