@@ -40,7 +40,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
    // printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
     struct mg_str *s = mg_http_get_header(hm, "X-Extra-Header");
     if (s != NULL) {
-      mg_http_reply(c, 200, "", "Holly molly! Header value: %.*s", (int) s->len, s->buf);
+      mg_http_reply(c, 200, "", "Holly molly! Header value: %.*s", (int) s->len, s->ptr);
     } else {
       set_cors_headers(c);
       mg_http_reply(c, 200, "", "Oh no, header is not set...");
