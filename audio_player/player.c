@@ -1,5 +1,5 @@
 #include "audio_player.h"
-// #include "include/visualizer.h"
+#include "include/visualizer.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -27,12 +27,109 @@ static void sigtstp_handler(int num)
 {
     // Cleanup before terminating the code
     printf("Cleaning up before termination...\n");
+    stopVisuals();
     //fclose(fp);
     fclose(fifo);
     snd_pcm_drain(pcm_handle); 
     snd_pcm_close(pcm_handle); 
     i2s_disable_tx();
     exit(0);
+}
+
+int loadAudioSamples(FILE* fp,
+                      struct wave_header hdr,
+                      int sample_count,
+                      unsigned int start, uint32_t **samples, int *len)
+{
+  if (!fp)
+    {
+      return -EINVAL;
+    }
+
+  // NOTE reject if number of channels is not 1 or 2
+  if(hdr.NumChannels != 1 && hdr.NumChannels !=2)
+    return -EINVAL;
+
+  // calculate starting point and move there
+  int x=fseek(fp, 44 + start, SEEK_SET);
+
+  // continuously read frames/samples and use fifo_transmit_word to
+  //      simulate transmission
+  int8_t buf[(hdr.BitsPerSample/8) * hdr.NumChannels];
+  //int8_t lbuf[(hdr.bitsPerSample/8)];
+  //int8_t rbuf[(hdr.bitsPerSample/8)];
+
+  if(sample_count == -1) //Play the whole file through
+  {
+    sample_count = (hdr.ChunkSize + 8) - start;
+  }
+
+  *len = sample_count;
+  *samples = (uint32_t *)malloc(*len * sizeof(uint32_t));
+
+  int i = 0;
+  while (sample_count > 0)
+  {
+    // read chunk (whole frame)
+    x=fread(buf, sizeof(int8_t), ((hdr.BitsPerSample/8)) * hdr.NumChannels, fp);
+
+    if(hdr.NumChannels == 2) //Seperate into two different buffers for left and right, for 2-channel audio
+    {
+      //for(int i = 0; i < (hdr.bitsPerSample/8) * hdr.numChannels; i+=2)
+      //{
+        //lbuf[i] = buf[i];
+        //rbuf[i] = buf[i + 1];
+      //}
+
+    //IGNORE 2 channel audio for now
+      //fifo_transmit_word(audio_word_from_buf(hdr, lbuf));
+      //fifo_transmit_word(audio_word_from_buf(hdr, rbuf));
+      sample_count -= 1;
+    }
+    else
+    {
+        (*samples)[(*len)-sample_count] = audio_word_from_buf(hdr, buf); //For the left channel
+      //fifo_transmit_word(audio_word_from_buf(hdr, buf)); //For the right channel
+    }
+    
+    sample_count -= 1;
+    i += 2;
+  }
+
+  return 0 * x;
+}
+
+void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, int start)
+{
+    int err;
+    FILE* fp;
+    struct wave_header hdr;
+
+    // open file
+    fp = fopen(filename, "r");
+    /*
+    if(())
+    {
+        fclose(fp);
+        printf("File %s does not exist.\n", filename);
+    }*/
+
+
+    // read file header
+    if(read_wave_header(fp, &hdr) != 0)
+    {
+        printf("Error: Incorrect File Format\n");
+    }
+
+    // parse file header, verify that is wave
+    if(parse_wave_header(hdr) != 0)
+    {
+        printf("Error: Incorrect WAV format\n");
+    }
+
+    err = loadAudioSamples(fp, hdr, sample_count, start, samples, len);
+    if(err != 0)
+        printf("There was an error!\n");
 }
 
 int main(int argc, char** argv) {
@@ -45,13 +142,6 @@ int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
     // handle SIGTSTP (ctrl-z)
     signal(SIGTSTP, sigtstp_handler);
-
-    // Visual intialization
-    //int len;
-    //uint32_t *waveform = NULL;
-    //char *wav_file = argv[1];
-    //getSamples(wav_file, &waveform, &len, -1, 0);
-    //initVisuals(wav_file, &waveform, len, 44100, 0x3232C8, 0x000000, 0xC0C0C0);
 
     // Initialize ALSA variables
     snd_pcm_hw_params_t *params = NULL;
@@ -119,10 +209,12 @@ int main(int argc, char** argv) {
     get_ip_address(ip_address);
     printf("IP address of the system: %s\n", ip_address);
 
-    // Print the duration of the WAV file 
-    int total_seconds = hdr.Subchunk2Size / hdr.ByteRate;
-    printf("Duration of WAV file: ");
-    print_time(total_seconds);
+    // Visual intialization
+    int len;
+    uint32_t *waveform = NULL;
+    char *wav_file = argv[1];
+    getSamples(wav_file, &waveform, &len, -1, 0);
+    initVisuals(wav_file, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
 
     // Main menu loop
     int choice;
@@ -155,7 +247,6 @@ int main(int argc, char** argv) {
                 // Print instructions for pausing/resuming playback
                 printf("Press Ctrl+C to pause/resume playback\n");
                 play_wave_samples(fp, hdr, start, end, loop);
-                // updateCursorValues(start, end);
                 printf("Finished playing WAV file\n");
                 break;
             case 2:
@@ -164,7 +255,6 @@ int main(int argc, char** argv) {
                 printf("Enter the number of times to loop (-1 for infinite): ");
                 scanf("%d", &loop_2);
                 play_wave_samples_reverse(fp, hdr, 0, -1, loop_2);
-                // updateCursorValues(start, end);
                 break;
             case 3:
                 // Cut the WAV file based on user input
@@ -185,6 +275,10 @@ int main(int argc, char** argv) {
                     return 1;
                 }
                 printf("WAV file cut successfully\n");
+                fp = fopen(output_file, "rb");
+                read_wave_header(fp, &hdr);
+                getSamples(output_file, &waveform, &len, -1, 0);
+                updateWaveform(&waveform, len, hdr.SampleRate);
                 break;
             case 4:
                 // Inverse cut the WAV file based on user input
@@ -205,11 +299,15 @@ int main(int argc, char** argv) {
                     return 1;
                 }
                 printf("WAV file cut successfully\n");
+                fp = fopen(output_file, "rb");
+                read_wave_header(fp, &hdr);
+                getSamples(output_file, &waveform, &len, -1, 0);
+                updateWaveform(&waveform, len, hdr.SampleRate);
                 break;
             case 5:
                 // Exit the program
                 printf("Exiting program\n");
-                //stopVisuals();
+                stopVisuals();
                 fclose(fp);
                 fclose(fifo);
                 snd_pcm_drain(pcm_handle); // Wait for all pending audio to play
@@ -222,7 +320,7 @@ int main(int argc, char** argv) {
     }
 
     // Cleanup and deinitialize
-    //stopVisuals();
+    stopVisuals();
     fclose(fp);
     fclose(fifo);
     snd_pcm_drain(pcm_handle); // Wait for all pending audio to play

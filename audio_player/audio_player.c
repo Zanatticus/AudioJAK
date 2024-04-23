@@ -1,4 +1,5 @@
 #include "audio_player.h"
+#include "include/visualizer.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -13,6 +14,7 @@
 
 snd_pcm_t *pcm_handle = NULL;
 FILE* fifo = NULL;
+unsigned char pause_playback = 0;   
 
 int i2s_enable_tx(void)
 {
@@ -271,8 +273,9 @@ int play_wave_samples(FILE* fp, struct wave_header hdr, unsigned int start, unsi
             }
         }
 
-        samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
-        if (samplesPlayed % hdr.SampleRate == 0) {
+        samplesPlayed += (hdr.NumChannels == 1 ? 1 : 2); // Adjusting play count based on mono or stereo
+        updateCursorValues(samplesPlayed, start, (end == -1 ? hdr.Subchunk2Size: end));
+        if (samplesPlayed % ((hdr.NumChannels == 1 ? 1 : 2)*hdr.SampleRate) == 0) {
             total_seconds_played += 1;
             printf("Current timestamp: ");
             print_time(total_seconds_played);
@@ -374,8 +377,9 @@ int play_wave_samples_reverse(FILE* fp, struct wave_header hdr, unsigned int sta
         }
 
         // Update play count and timestamp
-        samplesPlayed += (hdr.NumChannels == 1 ? 2 : 1); // Adjusting play count based on mono or stereo
-        if (samplesPlayed % hdr.SampleRate == 0) {
+        samplesPlayed += (hdr.NumChannels == 1 ? 1 : 2); // Adjusting play count based on mono or stereo
+        updateCursorValues(hdr.Subchunk2Size- samplesPlayed, start, (end == -1 ? hdr.Subchunk2Size: end));
+        if (samplesPlayed % ((hdr.NumChannels == 1 ? 1 : 2)*hdr.SampleRate) == 0) {
             total_seconds_played -= 1;
             printf("Current timestamp: ");
             print_time(total_seconds_played);
@@ -475,6 +479,26 @@ int cut_wav_file(const char *input_file, struct wave_header hdr, const char *out
         }
     }
 
+    // Update Subchunk2Size in the header
+    long new_subchunk2_size = ftell(output_fp) - header_size;
+    fseek(output_fp, 40, SEEK_SET); // Offset to Subchunk2Size field
+    if (fwrite(&new_subchunk2_size, sizeof(new_subchunk2_size), 1, output_fp) != 1) {
+        perror("Error updating Subchunk2Size in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
+    // Update ChunkSize in the header
+    long new_chunk_size = new_subchunk2_size + 36; // Header size is 36 bytes
+    fseek(output_fp, 4, SEEK_SET); // Offset to ChunkSize field
+    if (fwrite(&new_chunk_size, sizeof(new_chunk_size), 1, output_fp) != 1) {
+        perror("Error updating ChunkSize in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
     // Close files
     fclose(input_fp);
     fclose(output_fp);
@@ -565,6 +589,26 @@ int cut_wav_file_inverse(const char *input_file, struct wave_header hdr, const c
             fclose(output_fp);
             return -1;
         }
+    }
+
+     // Update Subchunk2Size in the header
+    long new_subchunk2_size = ftell(output_fp) - header_size;
+    fseek(output_fp, 40, SEEK_SET); // Offset to Subchunk2Size field
+    if (fwrite(&new_subchunk2_size, sizeof(new_subchunk2_size), 1, output_fp) != 1) {
+        perror("Error updating Subchunk2Size in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
+    }
+
+    // Update ChunkSize in the header
+    long new_chunk_size = new_subchunk2_size + 36; // Header size is 36 bytes
+    fseek(output_fp, 4, SEEK_SET); // Offset to ChunkSize field
+    if (fwrite(&new_chunk_size, sizeof(new_chunk_size), 1, output_fp) != 1) {
+        perror("Error updating ChunkSize in header");
+        fclose(input_fp);
+        fclose(output_fp);
+        return -1;
     }
 
     // Close files

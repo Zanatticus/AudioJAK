@@ -6,13 +6,12 @@
 #include <alsa/asoundlib.h>
 
 #define SND_CARD "default"
-//FILE* fifo;
+
 extern FILE* fifo;
 extern snd_pcm_t *pcm_handle;
-//snd_pcm_t *pcm_handle = NULL;
 
 // stop infinite loop flag
-static unsigned char pause_playback = 0;
+extern unsigned char pause_playback;
 
 struct wave_header
 {
