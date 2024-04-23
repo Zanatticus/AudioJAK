@@ -22,11 +22,12 @@ static void signal_handler(int signo) {
 // Since not doing so is a security vulnerability :(
 static void set_cors_headers(struct mg_connection *c) {
     printf("Set_cors_headers: Pre-flight OPTIONS request received\n");
-
-    mg_http_reply(c, 204, "Access-Control-Allow-Origin: *\n"
-                          "Access-Control-Allow-Methods: *\n"
-                          "Access-Control-Allow-Headers: *\n"
-                          "Access-Control-Expose-Headers: Content-Length,Content-Range", "");
+    mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
+                         "No Content");
+    // mg_http_reply(c, 204, "Access-Control-Allow-Origin: *\n"
+    //                       "Access-Control-Allow-Methods: *\n"
+    //                       "Access-Control-Allow-Headers: *\n"
+    //                       "Access-Control-Expose-Headers: Content-Length,Content-Range", "");
 }
 
 
