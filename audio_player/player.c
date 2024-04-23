@@ -1,5 +1,5 @@
 #include "audio_player.h"
-//#include "include/visualizer.h"
+#include "include/visualizer.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -197,21 +197,19 @@ int main(int argc, char** argv) {
     }
 
     // Print the number of users on system
-    char num_users[10];
+    char num_users[50];
     get_num_users(num_users);
-    printf("test: %s\n", num_users); 
 
     // Print the IP address of the system
-    char ip_address[16];
+    char ip_address[50];
     get_ip_address(ip_address);
-    printf("test: %s\n", ip_address); 
 
     // Visual intialization
     int len;
     uint32_t *waveform = NULL;
     char *wav_file = argv[1];
     getSamples(wav_file, &waveform, &len, -1, 0);
-    //initVisuals(wav_file, ip_address, num_users, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
+    initVisuals(wav_file, ip_address, num_users, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
 
     // Main menu loop
     int choice;
