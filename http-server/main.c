@@ -39,33 +39,33 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = ev_data;
 
-    // if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
-    //   printf("Upload request\n");
-    //   // Serve file upload
-    //   if (s_upload_dir == NULL) {
-    //     mg_http_reply(c, 403, "", "Denied: file upload directory not set\n");
-    //   } else {
-    //     struct mg_http_part part;
-    //     size_t pos = 0, total_bytes = 0, num_files = 0;
-    //     while ((pos = mg_http_next_multipart(hm->body, pos, &part)) > 0) {
-    //       char path[MG_PATH_MAX];
-    //       MG_INFO(("Chunk name: [%.*s] filename: [%.*s] length: %lu bytes",
-    //                part.name.len, part.name.ptr, part.filename.len,
-    //                part.filename.ptr, part.body.len));
-    //       mg_snprintf(path, sizeof(path), "%s/%.*s", s_upload_dir,
-    //                   part.filename.len, part.filename.ptr);
-    //       if (mg_path_is_sane(path)) {
-    //         mg_file_write(&mg_fs_posix, path, part.body.ptr, part.body.len);
-    //         total_bytes += part.body.len;
-    //         num_files++;
-    //       } else {
-    //         MG_ERROR(("Rejecting dangerous path %s", path));
-    //       }
-    //     }
-    //     mg_http_reply(c, 200, "", "Uploaded %lu files, %lu bytes\n", num_files,
-    //                   total_bytes);
-    //   }
-    // } 
+    if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
+      printf("Upload request\n");
+      // Serve file upload
+      if (s_upload_dir == NULL) {
+        mg_http_reply(c, 403, "", "Denied: file upload directory not set\n");
+      } else {
+        struct mg_http_part part;
+        size_t pos = 0, total_bytes = 0, num_files = 0;
+        while ((pos = mg_http_next_multipart(hm->body, pos, &part)) > 0) {
+          char path[MG_PATH_MAX];
+          MG_INFO(("Chunk name: [%.*s] filename: [%.*s] length: %lu bytes",
+                   part.name.len, part.name.ptr, part.filename.len,
+                   part.filename.ptr, part.body.len));
+          mg_snprintf(path, sizeof(path), "%s/%.*s", s_upload_dir,
+                      part.filename.len, part.filename.ptr);
+          if (mg_path_is_sane(path)) {
+            mg_file_write(&mg_fs_posix, path, part.body.ptr, part.body.len);
+            total_bytes += part.body.len;
+            num_files++;
+          } else {
+            MG_ERROR(("Rejecting dangerous path %s", path));
+          }
+        }
+        mg_http_reply(c, 200, "", "Uploaded %lu files, %lu bytes\n", num_files,
+                      total_bytes);
+      }
+    } 
     if (mg_http_match_uri(hm, "/hls/*")) {
       printf("hm->uri: %.*s\n", (int)hm->uri.len, hm->uri.ptr);
       char file_path[256];
