@@ -197,24 +197,21 @@ int main(int argc, char** argv) {
     }
 
     // Print the number of users on system
-    int num_users = get_num_users();
-    if (num_users < 0) {
-        fprintf(stderr, "Failed to get number of users\n");
-        return 1;
-    }
-    printf("Number of users on system: %d\n", num_users);
+    char num_users[10];
+    get_num_users(num_users);
+    printf("test: %s\n", num_users); 
 
     // Print the IP address of the system
     char ip_address[16];
     get_ip_address(ip_address);
-    printf("IP address of the system: %s\n", ip_address);
+    printf("test: %s\n", ip_address); 
 
     // Visual intialization
     int len;
     uint32_t *waveform = NULL;
     char *wav_file = argv[1];
     getSamples(wav_file, &waveform, &len, -1, 0);
-    initVisuals(wav_file, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
+    //initVisuals(wav_file, ip_address, num_users, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
 
     // Main menu loop
     int choice;
@@ -278,7 +275,9 @@ int main(int argc, char** argv) {
                 fp = fopen(output_file, "rb");
                 read_wave_header(fp, &hdr);
                 getSamples(output_file, &waveform, &len, -1, 0);
-                updateWaveform(&waveform, len, hdr.SampleRate);
+                get_ip_address(ip_address);
+                get_num_users(num_users);
+                updateWaveform(&waveform, len, hdr.SampleRate, ip_address, num_users);
                 break;
             case 4:
                 // Inverse cut the WAV file based on user input
@@ -302,7 +301,9 @@ int main(int argc, char** argv) {
                 fp = fopen(output_file, "rb");
                 read_wave_header(fp, &hdr);
                 getSamples(output_file, &waveform, &len, -1, 0);
-                updateWaveform(&waveform, len, hdr.SampleRate);
+                get_ip_address(ip_address);
+                get_num_users(num_users);
+                updateWaveform(&waveform, len, hdr.SampleRate, ip_address, num_users);
                 break;
             case 5:
                 // Exit the program

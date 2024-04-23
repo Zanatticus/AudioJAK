@@ -619,22 +619,26 @@ int cut_wav_file_inverse(const char *input_file, struct wave_header hdr, const c
 }
 
 // function to get number of users on the system
-int get_num_users() {
+void get_num_users(char *num_users) {
     FILE* fp = popen("who | wc -l", "r");
     if (!fp) {
         perror("Error opening pipe");
         return -1;
     }
 
-    int num_users;
-    if (fscanf(fp, "%d", &num_users) != 1) {
+    int number_users;
+    if (fscanf(fp, "%d", &number_users) != 1) {
         perror("Error reading number of users");
         pclose(fp);
         return -1;
     }
 
     pclose(fp);
-    return num_users;
+    char temp[20];
+    strcpy(temp, "Number of Users: ");
+    sprintf(num_users, "%d", number_users);
+    strcat(temp, num_users);
+    strcpy(num_users, temp);
 }
 
 // function to get IP address of the system
@@ -654,6 +658,10 @@ void get_ip_address(char *ip_address) {
             struct sockaddr_in *addr = (struct sockaddr_in *)ifa->ifa_addr;
             inet_ntop(AF_INET, &addr->sin_addr, ip_address, INET_ADDRSTRLEN);
             freeifaddrs(ifap);
+            char temp[INET_ADDRSTRLEN + 12];
+            strcpy(temp, "IP: ");
+            strcat(temp, ip_address);
+            strcpy(ip_address, temp);
             return;
         }
     }

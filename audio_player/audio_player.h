@@ -44,7 +44,7 @@ int play_wave_samples_reverse(FILE* fp, struct wave_header hdr, unsigned int sta
 void print_time(int total_seconds);
 int cut_wav_file(const char *input_file, struct wave_header hdr, const char *output_file, unsigned int start, unsigned int end);
 int cut_wav_file_inverse(const char *input_file, struct wave_header hdr, const char *output_file, unsigned int start, unsigned int end);
-int get_num_users();
+void get_num_users(char* num_users);
 void get_ip_address(char* ip_address);
 
 #endif /* audio_player_H */
