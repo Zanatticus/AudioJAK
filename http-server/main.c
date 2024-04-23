@@ -21,6 +21,8 @@ static void signal_handler(int signo) {
 // Note that the asterisk * should be replaced with an actual origin in a production environment
 // Since not doing so is a security vulnerability :(
 static void set_cors_headers(struct mg_connection *c) {
+    printf("Set_cors_headers: Pre-flight OPTIONS request received\n");
+
     mg_http_reply(c, 204, "Access-Control-Allow-Origin: *\n"
                           "Access-Control-Allow-Methods: *\n"
                           "Access-Control-Allow-Headers: *\n"
@@ -44,13 +46,13 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
     // //print just the hm struct:
     // printf("hm: %.*s\n", (int)hm->message.len, hm->message.ptr);
 
-    if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
-          printf("Pre-flight OPTIONS request received\n");
+    // if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
+    //       printf("Pre-flight OPTIONS request received\n");
     
-          // Returns the Released CORS (ALL)
-          mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
-                        "No Content");
-    } 
+    //       // Returns the Released CORS (ALL)
+    //       mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
+    //                     "No Content");
+    // } 
 
     if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
       printf("Upload request\n");
@@ -83,16 +85,24 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
       printf("hm->uri: %.*s\n", (int)hm->uri.len, hm->uri.ptr);
       char file_path[256];
       snprintf(file_path, sizeof(file_path), "hls/%.*s", (int)hm->uri.len - 5, hm->uri.ptr + 5);
-
-      FILE *fp = fopen(file_path, "wb");
-      if (fp != NULL) {
-          fwrite(hm->body.ptr, 1, hm->body.len, fp);
-          fclose(fp);
-          mg_http_reply(c, 200, "", "File stored\n");
-      } 
-      else {
-          mg_http_reply(c, 500, "", "Could not store file\n");
+      
+      // If PUT request do the following:
+      if (mg_vcmp(&hm->method, "PUT") == 0) {
+        FILE *fp = fopen(file_path, "wb");
+        if (fp != NULL) {
+            fwrite(hm->body.ptr, 1, hm->body.len, fp);
+            fclose(fp);
+            mg_http_reply(c, 200, "", "File stored\n");
+        } 
+        else {
+            mg_http_reply(c, 500, "", "Could not store file\n");
+        }
       }
+      else {
+        // If GET request, respond with CORS headers
+        set_cors_headers(c);
+      }
+
     }
     
     else {
