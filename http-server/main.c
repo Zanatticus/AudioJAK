@@ -37,19 +37,9 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
     struct mg_http_message *hm = ev_data;
 
     // print the hm struct
-   // printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
+    // printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
     struct mg_str *s = mg_http_get_header(hm, "X-Extra-Header");
-    if (s != NULL) {
-      printf("test");
-      mg_http_reply(c, 200, "", "Holly molly! Header value: %.*s", (int) s->len, s->ptr);
-    } else {
-      printf("test");
-      set_cors_headers(c);
-      mg_http_reply(c, 200, "", "Oh no, header is not set...");
-    }
-    // modify the hm method line to contain /stream.m3u8
-    // hm->method.ptr = "GET /stream.m3u8 HTTP/1.1";
-    // hm->method.len = 25;
+    printf("HEADER: %.*s\n", (int) s->len, s->ptr);
 
     //print just the hm struct:
     printf("hm: %.*s\n", (int)hm->message.len, hm->message.ptr);
@@ -61,17 +51,6 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
           mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
                         "No Content");
     } 
-
-    // // Handle OPTIONS requests for CORS preflight
-    // if (mg_http_match_uri(hm, "*")) {
-    //   printf("\n\nMethod: %.*s\n", (int)hm->method.len, hm->method.ptr);
-    //   if (mg_match(hm->method, mg_str("OPTIONS"), NULL)) {
-    //           printf("OPTIONS request\n\n");
-    //           set_cors_headers(c);
-    //           return; // Stop further processing of this preflight request
-    //       }
-    // }
-
 
     if (mg_match(hm->uri, mg_str("/upload"), NULL)) {
       printf("Upload request\n");
@@ -123,15 +102,6 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
       opts.root_dir = s_root_dir;
       opts.ssi_pattern = s_ssi_pattern;
       mg_http_serve_dir(c, hm, &opts);
-      printf("2Pre-flight OPTIONS request received\n");
-
-
-
-      // Returns the Released CORS (ALL)
-      // mg_http_reply(c, 204, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
-      //               "No Content");
-
-      set_cors_headers(c);
     }
 
     // Log request
