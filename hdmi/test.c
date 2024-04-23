@@ -230,21 +230,6 @@ void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, 
         printf("There was an error!\n");
 }
 
-void write_uint32_array_to_file(const char *filename, uint32_t *array, size_t size) {
-    FILE *file = fopen(filename, "wb");
-    if (file == NULL) {
-        perror("Error opening file");
-        return;
-    }
-
-    size_t elements_written = fwrite(array, sizeof(uint32_t), size, file);
-    if (elements_written != size) {
-        fprintf(stderr, "Error writing to file\n");
-    }
-
-    fclose(file);
-}
-
 int main()
 {
   //Signal handler to stop the program safely

@@ -95,6 +95,21 @@ char* concat(const char *s1, const char *s2) {
     return result;
 }
 
+void write_uint32_array_to_file(const char *filename, uint32_t *array, size_t size) {
+    FILE *file = fopen(filename, "wb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    size_t elements_written = fwrite(array, sizeof(uint32_t), size, file);
+    if (elements_written != size) {
+        fprintf(stderr, "Error writing to file\n");
+    }
+
+    fclose(file);
+}
+
 /* Draws the entire audio visualization screen, expensive and slow. Only use for major updates*/
 void drawWholeScreen()
 {
@@ -164,11 +179,12 @@ void drawWholeScreen()
     /* Copy background */
     getBuffer(background);
 
+    /* Write to server file */
+    write_uint32_array_to_file("~/http-server/web_root/hdmi.dat", background, waveform->w * waveform->h);
+
+
     /* Draw cursors */
     updateCursor(waveform->lcursor, waveform->rcursor, waveform->cursor);
-
-
-    
 }
 
 /* Helper function to convert sample number to cursor position */
@@ -244,6 +260,7 @@ void stopAudioVisualization()
 
     closehdmi();
 }
+
 
 /* Draw part of a waveform to screen */
 void drawPartialWaveform(int snum_start, int snum_end, int sx, int sy, int ex, int ey, uint32_t *samples, int len, uint32_t color)
