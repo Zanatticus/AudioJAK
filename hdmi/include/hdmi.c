@@ -251,7 +251,7 @@ int getwidth()
 }
 
 #include <time.h>
-#define TIME_COUNT 1000.0
+#define TIME_COUNT 200.0
 
 /* Thread function to constantly repaint screen */
 void *refreshThread(void *arg)
@@ -293,7 +293,7 @@ void *refreshThread(void *arg)
                 }
             }
 
-            printf("Avg time: %f ms\nMininum Time: %f ms\nMaximum Time: %f ms\n", (avg/TIME_COUNT), min, max);
+            printf("Avg time: %f ms\nMininum Time: %f ms\nMaximum Time: %f ms\nAvg FPS: %f\n", (avg/TIME_COUNT), min, max, 1/((avg/TIME_COUNT) / 1000));
             c++;
         }
             
