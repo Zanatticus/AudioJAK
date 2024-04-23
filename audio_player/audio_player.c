@@ -634,7 +634,7 @@ void get_num_users(char *num_users) {
     }
 
     pclose(fp);
-    char temp[20];
+    char temp[50];
     strcpy(temp, "Number of Users: ");
     sprintf(num_users, "%d", number_users);
     strcat(temp, num_users);
@@ -658,7 +658,7 @@ void get_ip_address(char *ip_address) {
             struct sockaddr_in *addr = (struct sockaddr_in *)ifa->ifa_addr;
             inet_ntop(AF_INET, &addr->sin_addr, ip_address, INET_ADDRSTRLEN);
             freeifaddrs(ifap);
-            char temp[INET_ADDRSTRLEN + 12];
+            char temp[50];
             strcpy(temp, "IP: ");
             strcat(temp, ip_address);
             strcpy(ip_address, temp);
