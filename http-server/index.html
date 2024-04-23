@@ -34,7 +34,15 @@
         const audio = new Audio(audioFilePath);
 
         // Play audio
-        audio.play().catch(error => console.error('Error playing audio file:', error));
+        audio.play().catch(error => {
+          console.error('Error playing audio file:', error);
+          // Show a "Play" button to allow the user to start the audio
+          const playButton = document.createElement('button');
+          playButton.textContent = 'Play';
+          playButton.onclick = () => audio.play();
+          document.body.appendChild(playButton);
+
+        });
 
         audio.onended = function() {
             console.log('Audio playback finished.');
