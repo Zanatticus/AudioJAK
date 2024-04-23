@@ -38,10 +38,16 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
 
     // print the hm struct
    // printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
-
+    struct mg_str *s = mg_http_get_header(hm, "X-Extra-Header");
+    if (s != NULL) {
+      mg_http_reply(c, 200, "", "Holly molly! Header value: %.*s", (int) s->len, s->buf);
+    } else {
+      set_cors_headers(c);
+      mg_http_reply(c, 200, "", "Oh no, header is not set...");
+    }
     // modify the hm method line to contain /stream.m3u8
-    hm->method.ptr = "GET /stream.m3u8 HTTP/1.1";
-    hm->method.len = 25;
+    // hm->method.ptr = "GET /stream.m3u8 HTTP/1.1";
+    // hm->method.len = 25;
 
     //print just the hm struct:
     printf("hm: %.*s\n", (int)hm->message.len, hm->message.ptr);
