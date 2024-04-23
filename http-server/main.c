@@ -94,7 +94,8 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
             char *file_content = (char *)malloc(file_size);
             fread(file_content, 1, file_size, fp);
             fclose(fp);
-            mg_http_reply(c, 200, "", "%.*s", file_size, file_content);
+            mg_http_reply(c, 200, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
+                        "%.*s", file_size, file_content);
             free(file_content);
         } 
         else {
