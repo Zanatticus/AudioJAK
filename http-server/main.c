@@ -38,11 +38,11 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
 
     // print the hm struct
     // printf("hm->method: %.*s\n", (int)hm->method.len, hm->method.ptr);
-    struct mg_str *s = mg_http_get_header(hm, "X-Extra-Header");
-    printf("HEADER: %.*s\n", (int) s->len, s->ptr);
+    // struct mg_str *s = mg_http_get_header(hm, "X-Extra-Header");
+    // printf("HEADER: %.*s\n", (int) s->len, s->ptr);
 
-    //print just the hm struct:
-    printf("hm: %.*s\n", (int)hm->message.len, hm->message.ptr);
+    // //print just the hm struct:
+    // printf("hm: %.*s\n", (int)hm->message.len, hm->message.ptr);
 
     if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
           printf("Pre-flight OPTIONS request received\n");
