@@ -265,12 +265,12 @@ void *refreshThread(void *arg)
 
     while(!stophdmi)
     {
-        start = clock();
+        //start = clock();
         pthread_mutex_lock(&mutex);
         paint();
         pthread_mutex_unlock(&mutex);
         usleep(100);
-        end = clock();
+        /*end = clock();
         if(c < TIME_COUNT)
         {
             times[c] = ((double) (end - start)) / CLOCKS_PER_SEC * 1000;
@@ -279,7 +279,7 @@ void *refreshThread(void *arg)
         else if(c == TIME_COUNT)
         {
             double avg=0, min=times[0], max=times[0];
-            printf("Finished taking times\n");
+            //printf("Finished taking times\n");
             for(int i = 0; i < TIME_COUNT;i++)
             {
                 avg += times[i];
@@ -293,9 +293,9 @@ void *refreshThread(void *arg)
                 }
             }
 
-            printf("Avg time: %f ms\nMininum Time: %f ms\nMaximum Time: %f ms\nAvg FPS: %f\n", (avg/TIME_COUNT), min, max, 1/((avg/TIME_COUNT) / 1000));
+            //printf("Avg time: %f ms\nMininum Time: %f ms\nMaximum Time: %f ms\nAvg FPS: %f\n", (avg/TIME_COUNT), min, max, 1/((avg/TIME_COUNT) / 1000));
             c++;
-        }
+        }*/
             
     }
     pthread_exit(NULL);
