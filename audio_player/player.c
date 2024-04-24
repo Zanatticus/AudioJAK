@@ -295,21 +295,41 @@ int main(int argc, char** argv) {
                 getSamples(output_file, &waveform, &len, -1, 0);
                 get_ip_address(ip_address);
                 get_num_users(num_users);
-                updateWaveform(&waveform, len, hdr.SampleRate, ip_address, num_users);
+                updateWaveform(output_file, &waveform, len, hdr.SampleRate, ip_address, num_users);
                 break;
             case 4:
-                // Inverse cut the WAV file based on user input
+                // Cut the WAV file based on user input
                 const char *input_file_2 = argv[1];
-                const char *output_file_2 = "output.wav";
+                const char *output_file_2;
+                int file_name_valid_2 = 0;
+                // loop to get user input for output_file name until valid one is entered
+                while (file_name_valid_2 == 0) {
+                    output_file_2 = (char *)malloc(100);
+                    printf("Enter the output file name: ");
+                    scanf("%s", output_file_2);
+                    printf("Output file name: %s\n", output_file_2);
+                    // Error handling for valid .wav file
+                    if (strstr(output_file_2, ".wav") == NULL) {
+                        printf("Output file must be a .wav file\n");
+                    } else {
+                        file_name_valid_2 = 1;
+                    }
+                }
+                int cursors_confirmed_2 = 0;
                 unsigned int start_cut_2;
-                printf("Enter the start time in seconds: ");
-                scanf("%d", &start_cut_2);
-                start_cut_2 *= hdr.SampleRate; // Convert to samples
                 unsigned int end_cut_2;
-                printf("Enter the end time in seconds (-1 for end of file): ");
-                scanf("%d", &end_cut_2);
-                if (end_cut_2 != -1) {
-                    end_cut_2 *= hdr.SampleRate; // Convert to samples
+                while (cursors_confirmed_2 == 0) {
+                    printf("Enter the start time in seconds: ");
+                    scanf("%d", &start_cut_2);
+                    start_cut_2 *= hdr.SampleRate; // Convert to samples
+                    printf("Enter the end time in seconds (-1 for end of file): ");
+                    scanf("%d", &end_cut_2);
+                    if (end_cut_2 != -1) {
+                        end_cut_2 *= hdr.SampleRate; // Convert to samples
+                    }
+                    updateCursorValues(start_cut_2, start_cut_2, (end_cut_2 == -1 ? hdr.Subchunk2Size: end_cut_2));
+                    printf("Is this correct? (1 for yes, 0 for no): ");
+                    scanf("%d", &cursors_confirmed_2);
                 }
                 if (cut_wav_file_inverse(input_file_2, hdr, output_file_2, start_cut_2, end_cut_2) != 0) {
                     fprintf(stderr, "Failed to cut WAV file\n");
@@ -321,7 +341,7 @@ int main(int argc, char** argv) {
                 getSamples(output_file_2, &waveform, &len, -1, 0);
                 get_ip_address(ip_address);
                 get_num_users(num_users);
-                updateWaveform(&waveform, len, hdr.SampleRate, ip_address, num_users);
+                updateWaveform(output_file_2, &waveform, len, hdr.SampleRate, ip_address, num_users);
                 break;
             case 5:
                 // Exit the program
