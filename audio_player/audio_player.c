@@ -132,20 +132,20 @@ int read_wave_header(FILE* fp, struct wave_header* dest)
   // NOTE do not assume file pointer is at its starting point
   // read header
   fread(dest, sizeof(struct wave_header), 1, fp);
-  printf("sizeof read wave_header: %zu\n", sizeof(*dest));
-  printf("ChunkID: %s\n", dest->ChunkID);
-  printf("ChunkSize: %u\n", dest->ChunkSize);
-  printf("Format: %s\n", dest->Format);
-  printf("Subchunk1ID: %s\n", dest->Subchunk1ID);
-  printf("Subchunk1Size: %u\n", dest->Subchunk1Size);
-  printf("AudioFormat: %u\n", dest->AudioFormat);
-  printf("NumChannels: %u\n", dest->NumChannels);
-  printf("SampleRate: %u\n", dest->SampleRate);
-  printf("ByteRate: %u\n", dest->ByteRate);
-  printf("BlockAlign: %u\n", dest->BlockAlign);
-  printf("BitsPerSample: %u\n", dest->BitsPerSample);
-  printf("Subchunk2ID: %s\n", dest->Subchunk2ID);
-  printf("Subchunk2Size: %u\n", dest->Subchunk2Size);
+  // printf("sizeof read wave_header: %zu\n", sizeof(*dest));
+  // printf("ChunkID: %s\n", dest->ChunkID);
+  // printf("ChunkSize: %u\n", dest->ChunkSize);
+  // printf("Format: %s\n", dest->Format);
+  // printf("Subchunk1ID: %s\n", dest->Subchunk1ID);
+  // printf("Subchunk1Size: %u\n", dest->Subchunk1Size);
+  // printf("AudioFormat: %u\n", dest->AudioFormat);
+  // printf("NumChannels: %u\n", dest->NumChannels);
+  // printf("SampleRate: %u\n", dest->SampleRate);
+  // printf("ByteRate: %u\n", dest->ByteRate);
+  // printf("BlockAlign: %u\n", dest->BlockAlign);
+  // printf("BitsPerSample: %u\n", dest->BitsPerSample);
+  // printf("Subchunk2ID: %s\n", dest->Subchunk2ID);
+  // printf("Subchunk2Size: %u\n", dest->Subchunk2Size);
 
   return 0;
 }

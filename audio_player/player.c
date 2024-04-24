@@ -146,7 +146,6 @@ int main(int argc, char** argv) {
     // Initialize ALSA variables
     snd_pcm_hw_params_t *params = NULL;
     i2s_enable_tx();
-    printf("Open WAV file\n");
     FILE* fp = fopen(argv[1], "rb");
     if (!fp) {
         perror("Error opening file");
@@ -154,7 +153,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    printf("Open zedaudio FIFO\n"); 
     fifo = fopen("/dev/zedaudio0", "w");
     if (!fifo) {
         perror("Error opening FIFO");
@@ -163,7 +161,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    printf("Read WAV header\n");
     struct wave_header hdr;
     if (read_wave_header(fp, &hdr) < 0) {
         fprintf(stderr, "Failed to read WAV header.\n");
@@ -172,7 +169,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    printf("Parse WAV header\n");
     if (parse_wave_header(hdr) < 0) {
         close(fp);
         snd_pcm_close(pcm_handle); // Close the ALSA PCM device on failure
