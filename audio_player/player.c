@@ -53,11 +53,8 @@ int loadAudioSamples(FILE* fp,
   // calculate starting point and move there
   int x=fseek(fp, 44 + start, SEEK_SET);
 
-  // continuously read frames/samples and use fifo_transmit_word to
-  //      simulate transmission
+  // continuously read frames/samples and use fifo_transmit_word to simulate transmission
   int8_t buf[(hdr.BitsPerSample/8) * hdr.NumChannels];
-  //int8_t lbuf[(hdr.bitsPerSample/8)];
-  //int8_t rbuf[(hdr.bitsPerSample/8)];
 
   if(sample_count == -1) //Play the whole file through
   {
@@ -75,21 +72,12 @@ int loadAudioSamples(FILE* fp,
 
     if(hdr.NumChannels == 2) //Seperate into two different buffers for left and right, for 2-channel audio
     {
-      //for(int i = 0; i < (hdr.bitsPerSample/8) * hdr.numChannels; i+=2)
-      //{
-        //lbuf[i] = buf[i];
-        //rbuf[i] = buf[i + 1];
-      //}
-
     //IGNORE 2 channel audio for now
-      //fifo_transmit_word(audio_word_from_buf(hdr, lbuf));
-      //fifo_transmit_word(audio_word_from_buf(hdr, rbuf));
       sample_count -= 1;
     }
     else
     {
         (*samples)[(*len)-sample_count] = audio_word_from_buf(hdr, buf); //For the left channel
-      //fifo_transmit_word(audio_word_from_buf(hdr, buf)); //For the right channel
     }
     
     sample_count -= 1;
@@ -107,13 +95,6 @@ void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, 
 
     // open file
     fp = fopen(filename, "r");
-    /*
-    if(())
-    {
-        fclose(fp);
-        printf("File %s does not exist.\n", filename);
-    }*/
-
 
     // read file header
     if(read_wave_header(fp, &hdr) != 0)
@@ -192,11 +173,11 @@ int main(int argc, char** argv) {
         return -1; // Exit if configuring the CODEC fails
     }
 
-    // Print the number of users on system
+    // Get the number of users on system
     char num_users[50];
     get_num_users(num_users);
 
-    // Print the IP address of the system
+    // Get the IP address of the system
     char ip_address[50];
     get_ip_address(ip_address);
 
