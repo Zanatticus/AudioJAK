@@ -1,5 +1,5 @@
 # Source files
-SRCS = player.c audio_player.c include/hdmi.c include/audiovisuals.c include/visualizer.c include/spectrogram.c
+SRCS = player.c audio_player.c ../hdmi/include/hdmi.c ../hdmi/include/audiovisuals.c ../hdmi/include/visualizer.c ../hdmi/include/spectrogram.c
 TARGET = player
 
 PYTHON_VERSION := $(shell python3 --version | cut -d " " -f2 | cut -d "." -f1-2)
@@ -22,7 +22,7 @@ LALSA:= -lasound -lpthread -lrt -ldl -lm
 INCLUDES = -I /usr/include/alsa/ -I /usr/include/libdrm -I include -I include -I /home/jared/eece4534sdk/sysroots/cortexa9t2hf-neon-esl-linux-gnueabi/usr/include/libpng16
 OBJS = $(SRCS:.c=.o)
 
-include include/zed.mk
+include ../hdmi/include/zed.mk
 .PHONY: clean
 
 all: $(TARGET)
