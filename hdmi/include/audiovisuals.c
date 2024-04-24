@@ -333,12 +333,15 @@ void drawWaveform(int sx, int sy, int ex, int ey, uint32_t *samples, int len, ui
         dsamps[snum] = (((int8_t)(samples[snum] >> 24)));
         //printf("Sample: %d, %d/%d\n", dsamps[snum], snum, len);
         int h = map(dsamps[snum], -128, 127, sy, ey);
+        int x = sx + xpixel;
         if(dsamps[snum] < 0)
         {
-            drawRectangleBulk(sx + xpixel, h, sx + xpixel + 1, sy + (ey-sy)/2, color);
+            if(x > waveform->wfsx && x < waveform->wfex)
+                drawRectangleBulk(sx + xpixel, h, sx + xpixel + 1, sy + (ey-sy)/2, color);
         }
         else{
-            drawRectangleBulk(sx + xpixel, sy + (ey-sy)/2, sx + xpixel + 1, h, color);
+            if(x > waveform->wfsx && x < waveform->wfex)
+                drawRectangleBulk(sx + xpixel, sy + (ey-sy)/2, sx + xpixel + 1, h, color);
         }
         xpixel += 1;
     }
