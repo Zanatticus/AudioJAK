@@ -13,21 +13,21 @@
 <body>
 <!-- Use this if you only support Safari!!
     <div id="player">
-        <video id="video" autoplay="true" controls="controls">
+        <audio id="audio" autoplay="true" controls="controls">
             <source src="http://ip-address-of-web-server/live/mystream.m3u8" />
             Your browser does not support HTML5 streaming!
-        </video>
+        </audio>
     </div>
 -->
-<video id="video" autoplay controls></video>
+<audio id="audio" autoplay></audio>
   <script>
     if (Hls.isSupported()) {
-      var video = document.getElementById('video');
+      var audio = document.getElementById('audio');
       var hls = new Hls();
 
       // bind them together
       hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-        console.log("video and hls.js are now bound together !");
+        console.log("audio and hls.js are now bound together !");
       });
 
       hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
@@ -35,7 +35,7 @@
       });
 
       hls.loadSource("hls/stream.m3u8");
-      hls.attachMedia(video);
+      hls.attachMedia(audio);
       
       // Error handling
       hls.on(Hls.Events.ERROR, function (event, data) {
@@ -60,7 +60,7 @@
         }
       });
       //hls.destroy()
-      video.play();
+      audio.play();
     }
   </script>
 
