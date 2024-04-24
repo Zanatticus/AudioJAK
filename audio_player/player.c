@@ -1,5 +1,5 @@
 #include "audio_player.h"
-#include "include/visualizer.h"
+#include "../hdmi/include/visualizer.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -254,16 +254,36 @@ int main(int argc, char** argv) {
             case 3:
                 // Cut the WAV file based on user input
                 const char *input_file = argv[1];
-                const char *output_file = "output.wav";
+                const char *output_file;
+                int file_name_valid = 0;
+                // loop to get user input for output_file name until valid one is entered
+                while (file_name_valid == 0) {
+                    output_file = (char *)malloc(100);
+                    printf("Enter the output file name: ");
+                    scanf("%s", output_file);
+                    printf("Output file name: %s\n", output_file);
+                    // Error handling for valid .wav file
+                    if (strstr(output_file, ".wav") == NULL) {
+                        printf("Output file must be a .wav file\n");
+                    } else {
+                        file_name_valid = 1;
+                    }
+                }
+                int cursors_confirmed = 0;
                 unsigned int start_cut;
-                printf("Enter the start time in seconds: ");
-                scanf("%d", &start_cut);
-                start_cut *= hdr.SampleRate; // Convert to samples
                 unsigned int end_cut;
-                printf("Enter the end time in seconds (-1 for end of file): ");
-                scanf("%d", &end_cut);
-                if (end_cut != -1) {
-                    end_cut *= hdr.SampleRate; // Convert to samples
+                while (cursors_confirmed == 0) {
+                    printf("Enter the start time in seconds: ");
+                    scanf("%d", &start_cut);
+                    start_cut *= hdr.SampleRate; // Convert to samples
+                    printf("Enter the end time in seconds (-1 for end of file): ");
+                    scanf("%d", &end_cut);
+                    if (end_cut != -1) {
+                        end_cut *= hdr.SampleRate; // Convert to samples
+                    }
+                    updateCursorValues(start_cut, start_cut, (end_cut == -1 ? hdr.Subchunk2Size: end_cut));
+                    printf("Is this correct? (1 for yes, 0 for no): ");
+                    scanf("%d", &cursors_confirmed);
                 }
                 if (cut_wav_file(input_file, hdr, output_file, start_cut, end_cut) != 0) {
                     fprintf(stderr, "Failed to cut WAV file\n");
@@ -296,9 +316,9 @@ int main(int argc, char** argv) {
                     return 1;
                 }
                 printf("WAV file cut successfully\n");
-                fp = fopen(output_file, "rb");
+                fp = fopen(output_file_2, "rb");
                 read_wave_header(fp, &hdr);
-                getSamples(output_file, &waveform, &len, -1, 0);
+                getSamples(output_file_2, &waveform, &len, -1, 0);
                 get_ip_address(ip_address);
                 get_num_users(num_users);
                 updateWaveform(&waveform, len, hdr.SampleRate, ip_address, num_users);
