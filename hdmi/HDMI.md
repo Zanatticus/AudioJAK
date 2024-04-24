@@ -36,7 +36,7 @@ It is created by calling a python script to generate a spectrogram using scipy a
 
 ## Output Example:
 
-This is what the output looks like without python installed:
+This is what the output looks like without python installed: In lieu of not having a spectrogram, the IP address and number of users are displayed on the zedboard.
 
 ![image](images/demo_nop.jpg)
 
