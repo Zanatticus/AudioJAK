@@ -207,6 +207,55 @@ int main(int argc, char** argv) {
     getSamples(wav_file, &waveform, &len, -1, 0);
     initVisuals(wav_file, ip_address, num_users, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
 
+    // Check if the user wants to play the audio file 
+    if (strcmp(argv[2], "-p") == 0) {
+        unsigned int start, end, loop;
+        start = 0;
+        end = -1;
+        loop = 0;
+        // Parse command-line arguments
+        for (int i = 1; i < argc; i++) {
+            char *arg = argv[i];
+            if (strncmp(arg, "start=", 6) == 0) {
+                start = atoi(arg + 6);
+            } else if (strncmp(arg, "end=", 4) == 0) {
+                end = atoi(arg + 4);
+            } else if (strncmp(arg, "loop=", 5) == 0) {
+                loop = atoi(arg + 5);
+            }
+        }
+
+        // Get start and end time in seconds and convert to samples
+        start *= hdr.SampleRate; // Convert to samples
+        if (end != -1) {
+            end *= hdr.SampleRate; // Convert to samples
+        }
+        // Print instructions for pausing/resuming playback
+        printf("Press Ctrl+C to pause/resume playback\n");
+        
+        // Call the function play_wave_samples with appropriate arguments
+        play_wave_samples(fp, hdr, start, end, loop);
+        printf("Finished playing WAV file\n");
+    }
+
+    // check if user wants to play the audio file in reverse
+    if (strcmp(argv[2], "-r") == 0) {
+        unsigned int loop;
+        loop = 0;
+        // Parse command-line arguments
+        for (int i = 1; i < argc; i++) {
+            char *arg = argv[i];
+            if (strncmp(arg, "loop=", 5) == 0) {
+                loop = atoi(arg + 5);
+            }
+        }
+        // Print instructions for pausing/resuming playback
+        printf("Press Ctrl+C to pause/resume playback\n");
+        // Call the function play_wave_samples_reverse with appropriate arguments
+        play_wave_samples_reverse(fp, hdr, 0, -1, loop);
+        printf("Finished playing WAV file\n");
+    }
+
     // Main menu loop
     int choice;
     while (1) {
