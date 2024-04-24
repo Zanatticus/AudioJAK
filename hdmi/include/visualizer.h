@@ -15,6 +15,6 @@ void stopVisuals();
 void updateCursorValues(int cursor, int lcursor, int rcursor);
 
 /* Updates the waveform with new samples */
-void updateWaveform(uint32_t **samples, int len, int sampleRate, char *ip, char *numUsers);
+void updateWaveform(char* newName, uint32_t **samples, int len, int sampleRate, char *ip, char *numUsers);
 
 #endif

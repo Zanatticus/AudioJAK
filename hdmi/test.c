@@ -264,7 +264,7 @@ int main()
     if(i >= loop_end)
     {
       i = loop_start;
-      updateWaveform(&waveform, len, 44100, "IP: 123.45.67.890", "Number of Users: 1");
+      updateWaveform("filename", &waveform, len, 44100, "IP: 123.45.67.890", "Number of Users: 1");
     }
     
   }

@@ -180,7 +180,8 @@ void drawWholeScreen()
     getBuffer(background);
 
     /* Write to server file */
-    write_uint32_array_to_file("http-server/web_root/hdmi.dat", background, waveform->w * waveform->h);
+    write_uint32_array_to_file("hdmi.data", background, waveform->w * waveform->h);
+    int x = system("sshpass -p audiojak scp hdmi.data audiojak@129.10.156.79:~/prj-audiojak/http-server/upload/hdmi.data");
 
     /* Draw cursors */
     updateCursor(waveform->lcursor, waveform->rcursor, waveform->cursor);

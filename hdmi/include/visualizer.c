@@ -86,6 +86,8 @@ void initVisuals(char* filename, char* ip, char* numUsers, uint32_t **samples, i
         perror("Error creating change thread");
     }
 
+    printf("Screen W: %d\nScreen H: %d\n", getScreenWidth(), getScreenHeight());
+
 }
 
 /* Stop visuals */
