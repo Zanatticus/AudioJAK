@@ -62,7 +62,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
             MG_ERROR(("Rejecting dangerous path %s", path));
           }
         }
-        mg_http_reply(c, 200, "", "Uploaded %lu files, %lu bytes\n", num_files,
+        mg_http_reply(c, 100, "", "Uploaded %lu files, %lu bytes\n", num_files,
                       total_bytes);
       }
     } 
