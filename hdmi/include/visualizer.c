@@ -108,7 +108,7 @@ void updateCursorValues(int cur, int lcur, int rcur)
 }
 
 /* Updates the waveform with new samples */
-void updateWaveform(uint32_t **samples, int len, int sampleRate, char *ip, char *numUsers)
+void updateWaveform(char* newName, uint32_t **samples, int len, int sampleRate, char *ip, char *numUsers)
 {
     //while(change != 0){ /* Wait for change */}
     _buffer = *samples;
@@ -116,5 +116,6 @@ void updateWaveform(uint32_t **samples, int len, int sampleRate, char *ip, char 
     _sampleRate = sampleRate;
     _num_users = numUsers;
     _ip = ip;
+    _wavefilename = newName;
     change = 2;
 }
