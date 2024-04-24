@@ -43,3 +43,13 @@ This is what the output looks like without python installed: In lieu of not havi
 This is what the output looks like with python installed:
 
 ![image](images/demo_p.jpg)
+
+## Experimental Results
+
+The most important factor with displays is refresh rate. This was tested when under immense stress (aka refreshing as often as possible), and then normal stress (aka normal application operation).
+
+It was found that immense stress, we were able to acheive 10.48 frames per second on average, and under normal usage we achieved 12.20 frames per second on average. We consider this satisfactory since there are not many fast or moving components which allows the application to work without a hitch
+
+## Future work
+
+In the future it would be nice to find a way to increase the frame rate of the applications. Many application specific shortcuts were taken that allowed us to optimize the framerate, but the underlying methodology would be a lot slower if the application was more intensive.
