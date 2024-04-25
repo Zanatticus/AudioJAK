@@ -18,9 +18,3 @@ When running the executable, users can add flags to play the audio file without 
 ## audio_player.c /audio_player.h file:
 
 These files are responsible for all of the audio playing and editing that can be performed on the Zedboard. This includes playing the audio file within specified cursors, playing the entire audio file in reverse, looping through the audio file for a finite or infinite number of times, pause and play functionality, and cutting out a portion of the audio file. They are also responsible for getting simple Zedboard information such as the IP address and the number of users on the board. 
-
-## Experimental Results
-
-When running the player.c file, it was observed that the CPU utilization was 150%. This is a direct result of the multithreaded design of the HDMI visualization. Without the HDMI display code being used in the player.c file, the CPU utilization was around 4%.
-
-
