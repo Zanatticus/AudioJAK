@@ -129,7 +129,7 @@
         // Function to alternate between two files
         function alternateDraw(index = 0) {
           if (index == 0) {
-              fetchAndDraw('upload/hdmi.data', 1360, 768);
+              fetchAndDraw('upload/hdmi.data', 1920, 1080);
           } 
           else if (index == 1) {
               fetchAndDraw('upload/hdmi2.data', 1360, 768);
@@ -144,7 +144,7 @@
           setTimeout(() => alternateDraw(nextIndex), 1000);
       }
       //alternateDraw();
-      fetchAndDraw('upload/hdmi.data', 1360, 768);
+      fetchAndDraw('upload/hdmi.data', 1920, 1080);
 
     </script>
 
