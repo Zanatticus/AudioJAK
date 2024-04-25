@@ -1,0 +1,12 @@
+[Unit]
+Description=service for HTTP server startup
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=make -C /home/audiojak/prj-audiojak/http-server
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Socket]
+# Listen on TCP port 17
+# Use ListenDatagram to listen on UDP
+ListenStream = 17
+BindIPv6Only = both
+Accept=no
+FileDescriptorName = http
+Service=test.service
+
+[Install]
+WantedBy = sockets.target

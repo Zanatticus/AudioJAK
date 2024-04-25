@@ -1,0 +1,12 @@
+[Unit]
+Description=service for audio visualizer
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python3 /home/audiojak/prj-audiojak/http-server/test_server/systemd_test/test.py
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
