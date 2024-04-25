@@ -11,7 +11,7 @@ Zedboard:
   - OR use curl/wget to send data via HTTP PUT requests to the HTTP server
 
 Raspberry Pi (Linux Server):
-- Contains the Mongoose HTTP server for serving static HDMI waveforms and "streaming" audio from the Zedboard
+- Contains the Mongoose HTTP server (see [mongoose.md](https://github.com/neu-ece-4534-sp24/prj-audiojak/blob/main/http-server/mongoose.md) for more details) for serving static HDMI waveforms and "streaming" audio from the Zedboard
   - HTML file for reading HDMI pixel data files and HLS playlist files
   - Signal interrupt handling for clean server shutdown
   - systemd service for starting the HTTP server and restarting a crashed HTTP server
