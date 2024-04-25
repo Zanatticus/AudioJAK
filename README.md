@@ -20,5 +20,9 @@ Karthik Yalala: [Audio Player](audio_player/PLAYER.md) <br />
 
 ## Implementation Progress
 
+## Lessons Learned from Design and Implementation
+
+We learned that it was extremely important to think about integration of components early on in the design process. By planning early on how the integration may work, the actual integration takes less time and debugging. Communication plays a crucial role in this as with good communication, teammates will know exactly what to expect from each others’ components. It is also important to not save integration for later on in the project. Having integration between unfinished components earlier on in the design timeline, helps facilitate conversations as to how to improve individual components for the final implementation. Once a minimal product, with integration of individual components, is made it is much easier to later add features to it. 
+
 ## Future Work
 
