@@ -28,9 +28,6 @@ The HDMI display plots the waveform and plots the spectrogram if Python is insta
 
 The Linux and HTTP server has fully functioning audio visualization/streaming of a static HDMI waveform sent by the Zedboard. This includes specialized handling of FFmpeg PUT requests, HLS GET requests, and Zedboard HDMI data upload PUT requests.
 
-## Lessons Learned from Design and Implementation
-We learned that it was extremely important to think about the integration of components early on in the design process. By planning early on how the integration may work, the actual integration takes less time and debugging. Communication plays a crucial role in this as with good communication, teammates will know exactly what to expect from each others’ components. It is also important to not save integration for later on in the project. Having integration between unfinished components earlier on in the design timeline, helps facilitate conversations as to how to improve individual components for the final implementation. Once a minimal product, with integration of individual components, is made it is much easier to later add features to it. 
-
 ## Future Work
 A button interface for the audio player to select cursor positioning when cutting the audio file or selecting what section of the audio file to play. Using button interrupts, pause/play and fast forwarding could be implemented. 
 
