@@ -23,4 +23,4 @@ def write_pixel_data(file_path):
     print(f"Pixel data written to {file_path}")
 
 # Usage example
-write_pixel_data('/home/zanatticus/prj-audiojak/visualization_server/hdmi_datastream/mongoose/web_root/pixels2.data')
+write_pixel_data('./mongoose_client/web_root/test_pixels.data')

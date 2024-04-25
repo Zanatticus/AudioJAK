@@ -22,4 +22,4 @@ Execute the following:
 
 ## Build Mongoose
 
-Within `prj-audiojak/mongoose_server` call `make` to build and start up a webserver accessible via `http://localhost:8000`
+Within `prj-audiojak/http_server` call `make` to build and start up a webserver accessible via `http://localhost:8000` or `http://audiojak.local:8000`

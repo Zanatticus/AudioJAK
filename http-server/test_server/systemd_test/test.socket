@@ -5,7 +5,7 @@ ListenStream = 17
 BindIPv6Only = both
 Accept=no
 FileDescriptorName = http
-Service=visualizer.service
+Service=test.service
 
 [Install]
 WantedBy = sockets.target

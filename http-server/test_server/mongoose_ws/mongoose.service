@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=/home/zanatticus/prj-audiojak/visualization_server/mongoose_ubuntu_server/mongoose_server/mongoose_server
+ExecStart=/home/audiojak/prj-audiojak/http-server/test_server/mongoose_ws_server/mongoose_server/ws_server
 StartLimitInterval=0
 
 [Install]
