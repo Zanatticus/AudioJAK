@@ -1,15 +1,14 @@
 # AudioJAK (Jared, Alexander, Karthik)
 
-# General Description
-We plan to create an audio visualizer that will be interfaced on a HDMI display. Using the buttons on the ZedBoard, we will try to implement simple audio operations such as playing a loop or cutting a segment of audio out.
+## Abstract
+The objective of this design was to create an audio visualizer that will be interfaced on a HDMI display and over a web server. Audio operations such as playing a loop, playing a section of the audio file, playing the audio file in reverse, and simple audio editing such as cutting out parts of the audio file were implemented. The audio file’s waveform along with audio file information is displayed in order to better visualize the file. 
 
-# System Diagram
+## System Diagram
 ![image](system_diagram.png)
 
-# Team Members/Responsibilities: 
-Alexander Ingare: Setting up remote HDMI, Buttons interface <br />
-Jared Cohen: HDMI Hardware interface/output <br />
-Karthik Yalala: Interface design and displaying <br />
-All of us: Audio playing/editing <br />
+## Contributions 
+Alexander Ingare: Remote Visualization <br />
+Jared Cohen: [HDMI Display](hdmi/HDMI.md) <br />
+Karthik Yalala: [Audio Player](audio_player/PLAYER.md) <br />
 
 
