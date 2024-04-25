@@ -9,3 +9,5 @@ ffmpeg -i "$SOURCE" -y $AUDIO_OPTS $VIDEO_OPTS $OUTPUT_HLS mystream.m3u8
 # This shell script is intended for streaming RTSP to HLS. It uses ffmpeg to convert 
 # the RTSP stream sourced by the Raspberry Pi capturing audio and HDMI, to HLS 
 # format for the HTTP server to display.
+
+# I did not have enough time to fully explore video streaming from the capture card. Script unfinished...

@@ -7,4 +7,4 @@ RTSP_URL="rtsp://$RASPBERRY_PI_IP:8554"
 
 ffmpeg $AUDIO_OPTS -i "$SOURCE" $OUTPUT_OPTS $RTSP_URL
 
-# This shell script streams audio from the Raspberry Pi using RTSP.
+# This shell script successfully streams soundcard captured audio on the Raspberry Pi using RTSP.
