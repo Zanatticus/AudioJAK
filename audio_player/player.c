@@ -53,11 +53,8 @@ int loadAudioSamples(FILE* fp,
   // calculate starting point and move there
   int x=fseek(fp, 44 + start, SEEK_SET);
 
-  // continuously read frames/samples and use fifo_transmit_word to
-  //      simulate transmission
+  // continuously read frames/samples and use fifo_transmit_word to simulate transmission
   int8_t buf[(hdr.BitsPerSample/8) * hdr.NumChannels];
-  //int8_t lbuf[(hdr.bitsPerSample/8)];
-  //int8_t rbuf[(hdr.bitsPerSample/8)];
 
   if(sample_count == -1) //Play the whole file through
   {
@@ -75,21 +72,12 @@ int loadAudioSamples(FILE* fp,
 
     if(hdr.NumChannels == 2) //Seperate into two different buffers for left and right, for 2-channel audio
     {
-      //for(int i = 0; i < (hdr.bitsPerSample/8) * hdr.numChannels; i+=2)
-      //{
-        //lbuf[i] = buf[i];
-        //rbuf[i] = buf[i + 1];
-      //}
-
     //IGNORE 2 channel audio for now
-      //fifo_transmit_word(audio_word_from_buf(hdr, lbuf));
-      //fifo_transmit_word(audio_word_from_buf(hdr, rbuf));
       sample_count -= 1;
     }
     else
     {
         (*samples)[(*len)-sample_count] = audio_word_from_buf(hdr, buf); //For the left channel
-      //fifo_transmit_word(audio_word_from_buf(hdr, buf)); //For the right channel
     }
     
     sample_count -= 1;
@@ -107,13 +95,6 @@ void getSamples(char *filename, uint32_t **samples, int *len, int sample_count, 
 
     // open file
     fp = fopen(filename, "r");
-    /*
-    if(())
-    {
-        fclose(fp);
-        printf("File %s does not exist.\n", filename);
-    }*/
-
 
     // read file header
     if(read_wave_header(fp, &hdr) != 0)
@@ -146,7 +127,6 @@ int main(int argc, char** argv) {
     // Initialize ALSA variables
     snd_pcm_hw_params_t *params = NULL;
     i2s_enable_tx();
-    printf("Open WAV file\n");
     FILE* fp = fopen(argv[1], "rb");
     if (!fp) {
         perror("Error opening file");
@@ -154,7 +134,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    printf("Open zedaudio FIFO\n"); 
     fifo = fopen("/dev/zedaudio0", "w");
     if (!fifo) {
         perror("Error opening FIFO");
@@ -163,7 +142,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    printf("Read WAV header\n");
     struct wave_header hdr;
     if (read_wave_header(fp, &hdr) < 0) {
         fprintf(stderr, "Failed to read WAV header.\n");
@@ -172,7 +150,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    printf("Parse WAV header\n");
     if (parse_wave_header(hdr) < 0) {
         close(fp);
         snd_pcm_close(pcm_handle); // Close the ALSA PCM device on failure
@@ -196,11 +173,11 @@ int main(int argc, char** argv) {
         return -1; // Exit if configuring the CODEC fails
     }
 
-    // Print the number of users on system
+    // Get the number of users on system
     char num_users[50];
     get_num_users(num_users);
 
-    // Print the IP address of the system
+    // Get the IP address of the system
     char ip_address[50];
     get_ip_address(ip_address);
 
@@ -210,6 +187,54 @@ int main(int argc, char** argv) {
     char *wav_file = argv[1];
     getSamples(wav_file, &waveform, &len, -1, 0);
     initVisuals(wav_file, ip_address, num_users, &waveform, len, hdr.SampleRate, 0x3232C8, 0x000000, 0xC0C0C0);
+
+    // Check for flags passed in command-line arguments
+    for (int i = 1; i < argc; i++){
+        if (strcmp(argv[i], "-p") == 0){
+            unsigned int start, end, loop;
+            start = 0;
+            end = -1;
+            loop = 0;
+            // Parse command-line arguments
+            for (int i = 1; i < argc; i++) {
+                char *arg = argv[i];
+                if (strncmp(arg, "start=", 6) == 0) {
+                    start = atoi(arg + 6);
+                } else if (strncmp(arg, "end=", 4) == 0) {
+                    end = atoi(arg + 4);
+                } else if (strncmp(arg, "loop=", 5) == 0) {
+                    loop = atoi(arg + 5);
+                }
+            }
+
+            // Get start and end time in seconds and convert to samples
+            start *= hdr.SampleRate; // Convert to samples
+            if (end != -1) {
+                end *= hdr.SampleRate; // Convert to samples
+            }
+            // Print instructions for pausing/resuming playback
+            printf("Press Ctrl+C to pause/resume playback\n");
+            
+            // Call the function play_wave_samples with appropriate arguments
+            play_wave_samples(fp, hdr, start, end, loop);
+            printf("Finished playing WAV file\n");
+        } else if (strcmp(argv[i], "-r") == 0){
+            unsigned int loop;
+            loop = 0;
+            // Parse command-line arguments
+            for (int i = 1; i < argc; i++) {
+                char *arg = argv[i];
+                if (strncmp(arg, "loop=", 5) == 0) {
+                    loop = atoi(arg + 5);
+                }
+            }
+            // Print instructions for pausing/resuming playback
+            printf("Press Ctrl+C to pause/resume playback\n");
+            // Call the function play_wave_samples_reverse with appropriate arguments
+            play_wave_samples_reverse(fp, hdr, 0, -1, loop);
+            printf("Finished playing WAV file\n");
+        }
+    }
 
     // Main menu loop
     int choice;
