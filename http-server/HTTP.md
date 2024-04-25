@@ -25,3 +25,6 @@ Accessing HTTP server from LAN (non-NUWave)
 
 ![image](https://github.com/neu-ece-4534-sp24/prj-audiojak/assets/106758747/3e326887-2223-498b-9d85-5b255c479c5f)
 Accessing HTTP server from Raspberry Pi IP address
+
+## Physical Setup
+![IMG_2541](https://github.com/neu-ece-4534-sp24/prj-audiojak/assets/106758747/d254cfdf-ee62-4c4b-9b34-98096279a68a)
