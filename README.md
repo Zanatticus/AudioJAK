@@ -14,7 +14,7 @@ Used code from Lab 6 as a starting point for the audio player and the previous z
 
 ## Top Level Design Overview
 
-The audio display to HDMI works in a top down heirarchy, where all the HDMI diplay features including waveform visualization are done within a seperate thread, and the audio playing features are done in the main loop. This main loop uses exposed functions to draw to the screen.
+The audio display to HDMI works in a top down heirarchy, where all the HDMI diplay features including waveform visualization are done within a seperate thread, and the audio playing features are done in the main loop. This main loop uses exposed functions to draw to the screen. As the audio samples are passed through the codec, a sound capture card re-encodes and streams the incoming PCM signal to the HTTP server for remote viewing along with the HDMI display.
 
 ## Contributions 
 Alexander Ingare: [Remote Visualization/Streaming](http-server/HTTP.md) <br />
