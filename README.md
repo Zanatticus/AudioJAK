@@ -15,7 +15,7 @@ Used code from Lab 6 as a starting point for the audio player.
 ## Top Level Design Overview
 
 ## Contributions 
-Alexander Ingare: Remote Visualization <br />
+Alexander Ingare: [Remote Visualization/Streaming](http-server/HTTP.md) <br />
 Jared Cohen: [HDMI Display](hdmi/HDMI.md) <br />
 Karthik Yalala: [Audio Player](audio_player/PLAYER.md) <br />
 
