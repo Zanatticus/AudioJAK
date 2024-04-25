@@ -17,22 +17,6 @@ static void signal_handler(int signo) {
   s_signo = signo;
 }
 
-// Handle the CORS preflight request to solve the failed .m3u8 request
-// Note that the asterisk * should be replaced with an actual origin in a production environment
-// Since not doing so is a security vulnerability :(
-static void set_cors_headers(struct mg_connection *c) {
-    printf("Set_cors_headers: Pre-flight OPTIONS request received\n");
-    mg_http_reply(c, 304, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
-                         "No Content");
-    // mg_http_reply(c, 204, "Access-Control-Allow-Origin: *\n"
-    //                       "Access-Control-Allow-Methods: *\n"
-    //                       "Access-Control-Allow-Headers: *\n"
-    //                       "Access-Control-Expose-Headers: Content-Length,Content-Range", "");
-}
-
-
-
-
 // Event handler for the listening connection.
 // Simply serve static files from `s_root_dir`
 static void cb(struct mg_connection *c, int ev, void *ev_data) {
@@ -94,8 +78,14 @@ static void cb(struct mg_connection *c, int ev, void *ev_data) {
             char *file_content = (char *)malloc(file_size);
             fread(file_content, 1, file_size, fp);
             fclose(fp);
+
+            printf("CORS Header Setting: Pre-flight OPTIONS request received\n");
+            // Handle the CORS preflight request to solve the failed .m3u8 request
+            // Note that the asterisk * should be replaced with an actual origin in a production environment
+            // Since not doing so is a security vulnerability :(
             mg_http_reply(c, 200, "Content-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n\r\n",
                         "%.*s", file_size, file_content);
+
             free(file_content);
         } 
         else {
