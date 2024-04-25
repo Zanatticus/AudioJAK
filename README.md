@@ -14,6 +14,8 @@ Used code from Lab 6 as a starting point for the audio player.
 
 ## Top Level Design Overview
 
+The audio display to HDMI works in a top down heirarchy, where all the HDMI diplay features including waveform visualization are done within a seperate thread, and the audio playing features are done in the main loop. This main loop uses exposed functions to draw to the screen.
+
 ## Contributions 
 Alexander Ingare: [Remote Visualization/Streaming](http-server/HTTP.md) <br />
 Jared Cohen: [HDMI Display](hdmi/HDMI.md) <br />
@@ -29,3 +31,5 @@ We learned that it was extremely important to think about integration of compone
 
 ## Future Work
 A button interface for the audio player to select cursor positioning when cutting the audio file or selecting what section of the audio file to play. Using button interrupts, pause/play and fast forwarding could be implemented. 
+
+For the HDMI diplay, finding a way to plot the spectrogram in C, or cross-compile an executable python scrip to make sure the spectrogram always works would be ideal. It would also be beneficial to increase the refresh rate of the HDMI display to at least 60FPS, which would require a new implementation.
