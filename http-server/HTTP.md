@@ -19,15 +19,6 @@ Raspberry Pi (Linux Server):
   - Continuously streams the Pulse-Code Modulation (PCM) signal detected by the USB capture card as re-encoded libmp3lame formatted HTTP-Live Streaming (HLS) files
   - Can also stream audio over RTP/RTSP to VLC Media Player
 
-## Experimental Results
-- Sound capture card re-streaming latency: averaged ~3-5 seconds from initial Zedboard WAV file playing
-- Webserver HLS.min.js script loading: ~10-20 seconds
-- Webserver HLS.min.js script playlist parsing: Network Timeout Error
-- SCP HDMI Data: ~3 seconds
-- Curl HDMI Data: ~60 seconds
-
-We also tested streaming an MP4 file (audio & video) over RTP to VLC Media Player on the Raspberry Pi which we found to have a refresh rate of 1 frame every 15 seconds (i.e. an unusable streaming method)
-
 ## Webserver Examples
 ![image](https://github.com/neu-ece-4534-sp24/prj-audiojak/assets/106758747/f2599ab7-04bf-4bc8-9348-fb5828fda85a)
 Accessing HTTP server from LAN (non-NUWave)
