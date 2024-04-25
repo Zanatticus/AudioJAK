@@ -9,4 +9,4 @@ To continuously stream audio from the soundcard connected to the Zedboard's line
 To set up the `systemd` service for the HTTP server, follow the general instructions within `./test_server/systemd_test`.
 
 ## HTTP URL
-The HTTP server runs on the Raspberry Pi's TCP port 8000 and can be accessed by devices on the same network (LAN)
+The HTTP server runs on the Raspberry Pi's TCP port 8000 and can be accessed by devices on the same network (LAN) (http://localhost:8000, http://audiojak.local:8000)
